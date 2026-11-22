@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ask College Assistant</title>
+<meta name="theme-color" content="#4f46e5">
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1e293b;
+         display: flex; flex-direction: column; height: 100dvh;
+         background: radial-gradient(1200px 500px at 10% -10%, #e0e7ff 0%, transparent 60%),
+                     radial-gradient(900px 500px at 100% 0%, #cffafe 0%, transparent 55%), #f8fafc; }
+  button, input { font: inherit; border: 0; cursor: pointer; }
+  .hero { background: linear-gradient(120deg, #4f46e5, #2563eb 55%, #06b6d4); color: #fff; display: flex; align-items: center;
+          gap: 10px; padding: 12px 14px; padding-top: max(12px, env(safe-area-inset-top)); }
+  .hero h1 { margin: 0; font-size: 17px; line-height: 1.2; }
+  .grow { flex: 1; min-width: 0; }
+  .status { font-size: 12px; color: #e0e7ff; margin: 2px 0 0; display: flex; align-items: center; gap: 5px; }
+  .live { width: 8px; height: 8px; border-radius: 9999px; background: #6ee7b7; display: inline-block; }
+  .hbtn { background: rgba(255,255,255,.2); color: #fff; border-radius: 9999px; padding: 6px 12px; font-size: 13px; text-decoration: none; }
+  .avatar { width: 46px; height: 46px; border-radius: 9999px; background: #fff; display: grid; place-items: center; font-size: 24px;
+            position: relative; box-shadow: 0 2px 10px rgba(0,0,0,.2); flex: none; }
+  .avatar.sm { width: 32px; height: 32px; font-size: 16px; box-shadow: none; border: 1px solid #e2e8f0; }
+  .avatar.speaking::after, .avatar.listening::after { content: ""; position: absolute; inset: -6px; border-radius: 9999px;
+            border: 3px solid rgba(255,255,255,.85); animation: ring 1.1s ease-out infinite; }
+  .avatar.listening::after { border-color: #fda4af; }
+  @keyframes ring { 0% { transform: scale(.85); opacity: 1 } 100% { transform: scale(1.35); opacity: 0 } }
+  #chat { flex: 1; overflow-y: auto; padding: 16px; width: 100%; max-width: 760px; margin: 0 auto; }
+  .row { display: flex; gap: 8px; margin-bottom: 14px; } .r-user { justify-content: flex-end; } .r-bot { justify-content: flex-start; }
+  .col { max-width: 82%; display: flex; flex-direction: column; } .c-user { align-items: flex-end; } .c-bot { align-items: flex-start; }
+  .bub { padding: 10px 16px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
+  .user-b { background: linear-gradient(135deg, #4f46e5, #2563eb); color: #fff; border-radius: 18px 18px 4px 18px; }
+  .bot-b { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 4px rgba(15,23,42,.06); }
+  .meta { font-size: 11px; color: #94a3b8; margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+  .replay { background: none; color: #4f46e5; padding: 0; font-size: 11px; } .replay:hover { text-decoration: underline; }
+  .dot { width: 7px; height: 7px; border-radius: 9999px; background: #94a3b8; display: inline-block; margin: 0 2px; animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: .15s } .dot:nth-child(3) { animation-delay: .3s }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5 } 30% { transform: translateY(-5px); opacity: 1 } }
+  .pop { animation: pop .25s ease-out both; } @keyframes pop { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+  #chips { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 16px 8px; display: flex; gap: 8px; overflow-x: auto; }
+  .chip { background: #fff; border: 1px solid #c7d2fe; color: #4338ca; border-radius: 9999px; padding: 7px 14px; font-size: 13px; white-space: nowrap; }
+  .chip:hover { background: #eef2ff; }
+  footer { background: rgba(255,255,255,.92); backdrop-filter: blur(6px); border-top: 1px solid #e2e8f0; padding: 12px 12px max(10px, env(safe-area-inset-bottom)); }
+  .bar { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 8px; }
+  #q { flex: 1; min-width: 0; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 11px 16px; background: #fff; cursor: text; }
+  #q:focus { outline: 2px solid #a5b4fc; }
+  .ib { width: 42px; height: 42px; border-radius: 9999px; display: grid; place-items: center; flex: none; font-size: 18px; }
+  .mic { background: #f1f5f9; color: #334155; } #send { color: #fff; background: linear-gradient(135deg, #4f46e5, #2563eb); }
+  #send:disabled { opacity: .5; }
+  .mic.listening { background: #fb7185; color: #fff; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(251,113,133,.3) } }
+  .note { text-align: center; font-size: 11px; color: #94a3b8; margin: 8px 0 0; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div id="avatar" class="avatar">🎓</div>
+  <div class="grow">
+    <h1>College Assistant</h1>
+    <p id="status" class="status"><span class="live"></span><span> Online · ask me anything</span></p>
+  </div>
+  <button id="snd" class="hbtn" title="Voice replies on/off">🔊</button>
+  <button id="lang" class="hbtn" title="Microphone language">EN</button>
+  <a href="index.html" class="hbtn">Home</a>
+</header>
+
+<main id="chat" aria-live="polite"></main>
+<div id="chips"></div>
+
+<footer>
+  <div class="bar">
+    <button id="mic" class="ib mic" title="Speak your question">🎤</button>
+    <input id="q" maxlength="300" placeholder="Type or tap the mic to ask..." autocomplete="off">
+    <button id="send" class="ib" title="Send">➤</button>
+  </div>
+  <p class="note">AI can make mistakes. For important matters, confirm with the college office.</p>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const chat = $("chat"), q = $("q"), send = $("send"), avatar = $("avatar"), statusEl = $("status");
+const history = [];
+let busy = false, soundOn = true, micLang = "en-IN", voices = [];
+try { soundOn = localStorage.getItem("ca_sound") !== "off"; } catch (e) {}
+
+/* ---------- text helpers ---------- */
+const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/^\s*[-*]\s+/gm, "• ").replace(/\n/g, "<br>");
+const forSpeech = s => s.replace(/[*#_`>]/g, "").replace(/\p{Extended_Pictographic}/gu, "").replace(/\s+/g, " ").trim();
+const isHindi = s => /[\u0900-\u097F]/.test(s);
+
+/* ---------- voice output (browser built-in, free) ---------- */
+const synth = window.speechSynthesis;
+function loadVoices() { if (synth) voices = synth.getVoices(); }
+if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+
+function pickVoice(hi) {
+  const base = voices.filter(v => v.lang.toLowerCase().startsWith(hi ? "hi" : "en"));
+  const prefs = hi ? [/swara|kalpana|lekha|google/i, /female/i]
+                   : [/natural.*(neerja|aria|jenny|sonia|swara)/i, /neerja|heera|aria|jenny|sonia/i, /google uk english female/i, /samantha|zira|karen|moira|tessa|female/i];
+  for (const p of prefs) { const v = base.find(v => p.test(v.name)); if (v) return v; }
+  return base.find(v => /en-IN/i.test(v.lang)) || base[0] || null;
+}
+
+function speak(text, force) {
+  if (!synth || (!soundOn && !force)) return;
+  synth.cancel();
+  const clean = forSpeech(text); if (!clean) return;
+  const hi = isHindi(clean), voice = pickVoice(hi);
+  const parts = clean.match(/[^.!?।]+[.!?।]*/g) || [clean];   // short chunks sound smoother
+  parts.forEach((p, i) => {
+    const u = new SpeechSynthesisUtterance(p.trim());
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : (hi ? "hi-IN" : "en-IN");
+    u.rate = 0.96; u.pitch = 1.1; u.volume = 1;
+    if (i === 0) u.onstart = () => avatar.classList.add("speaking");
+    if (i === parts.length - 1) { u.onend = u.onerror = () => avatar.classList.remove("speaking"); }
+    synth.speak(u);
+  });
+}
+function stopSpeaking() { if (synth) synth.cancel(); avatar.classList.remove("speaking"); }
+
+/* ---------- chat bubbles ---------- */
+function bubble(text, who) {
+  const row = document.createElement("div");
+  row.className = "pop row " + (who === "user" ? "r-user" : "r-bot");
+  if (who === "bot") row.insertAdjacentHTML("beforeend", `<div class="avatar sm">🎓</div>`);
+  const col = document.createElement("div");
+  col.className = "col " + (who === "user" ? "c-user" : "c-bot");
+  const b = document.createElement("div");
+  b.className = "bub " + (who === "user" ? "user-b" : "bot-b");
+  if (who === "user") b.textContent = text; else b.innerHTML = text;
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  col.append(b, meta); row.appendChild(col); chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+  return { b, meta, row };
+}
+function addReplay(item, text) {
+  if (!synth) return;
+  const r = document.createElement("button");
+  r.textContent = "🔊 Listen"; r.className = "replay";
+  r.onclick = () => speak(text, true);
+  item.meta.appendChild(r);
+}
+const typingHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+
+/* ---------- ask the server ---------- */
+async function ask(text) {
+  text = text.trim();
+  if (!text || busy) return;
+  busy = true; send.disabled = true; q.value = ""; stopSpeaking();
+  $("chips").innerHTML = "";
+  bubble(text, "user");
+  history.push({ role: "user", text });
+  const wait = bubble(typingHTML, "bot");
+  statusEl.lastElementChild.textContent = " Typing...";
+  try {
+    const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: history }) });
+    const j = await r.json();
+    const reply = j.reply || "Sorry, something went wrong. Please try again in a moment.";
+    wait.b.innerHTML = fmt(reply);
+    history.push({ role: "model", text: reply });
+    addReplay(wait, reply); speak(reply);
+  } catch (e) {
+    wait.b.textContent = "I couldn't reach the server. Please check your internet and try again.";
+    history.pop();
+  }
+  statusEl.lastElementChild.textContent = " Online · ask me anything";
+  busy = false; send.disabled = false; chat.scrollTop = chat.scrollHeight;
+}
+
+/* ---------- microphone (Chrome / Edge) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+if (!SR) { $("mic").style.display = "none"; $("lang").style.display = "none"; }
+else {
+  $("mic").onclick = () => {
+    if (rec) { rec.stop(); return; }
+    stopSpeaking();
+    rec = new SR(); rec.lang = micLang; rec.interimResults = true; rec.maxAlternatives = 1;
+    let finalText = "";
+    rec.onstart = () => { $("mic").classList.add("listening"); avatar.classList.add("listening"); q.placeholder = "Listening..."; };
+    rec.onresult = e => {
+      let t = ""; for (const r of e.results) { t += r[0].transcript; if (r.isFinal) finalText = t; }
+      q.value = t;
+    };
+    rec.onerror = e => { q.placeholder = e.error === "not-allowed" ? "Allow microphone access in your browser" : "Couldn't hear you, try again"; };
+    rec.onend = () => {
+      $("mic").classList.remove("listening"); avatar.classList.remove("listening"); rec = null;
+      if (q.placeholder === "Listening...") q.placeholder = "Type or tap the mic to ask...";
+      if (finalText || q.value.trim()) ask(q.value);
+    };
+    try { rec.start(); } catch (e) { rec = null; }
+  };
+  $("lang").onclick = () => {
+    micLang = micLang === "en-IN" ? "hi-IN" : "en-IN";
+    $("lang").textContent = micLang === "en-IN" ? "EN" : "हिं";
+  };
+}
+
+/* ---------- sound toggle ---------- */
+function paintSound() { $("snd").textContent = soundOn ? "🔊" : "🔇"; }
+$("snd").onclick = () => {
+  soundOn = !soundOn; paintSound(); if (!soundOn) stopSpeaking();
+  try { localStorage.setItem("ca_sound", soundOn ? "on" : "off"); } catch (e) {}
+};
+paintSound();
+
+/* ---------- start ---------- */
+const hello = "Hi! 👋 I'm your College Assistant. Ask me about exam dates, notices, classrooms or departments. You can type, or tap the 🎤 and just speak.";
+addReplay(bubble(fmt(hello), "bot"), hello);
+["When is my BCA 3rd sem exam?", "Where is the Examination Cell?", "What documents are needed for admission?", "Any new notices?", "Library timings?"].forEach(s => {
+  const b = document.createElement("button"); b.className = "chip"; b.textContent = s; b.onclick = () => ask(s);
+  $("chips").appendChild(b);
+});
+send.onclick = () => ask(q.value);
+q.addEventListener("keydown", e => { if (e.key === "Enter") ask(q.value); });
+</script>
+</body>
+</html>
