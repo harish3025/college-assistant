@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>College Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-20">
+
+  <header class="bg-blue-700 text-white p-4 sticky top-0 z-10">
+    <h1 class="text-xl font-bold">🎓 College Assistant</h1>
+    <p class="text-xs text-blue-100">Notices, exams, rooms and departments in one place</p>
+  </header>
+
+  <main id="app" class="max-w-3xl mx-auto p-4"></main>
+
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t flex justify-around text-xs">
+    <a href="#home" class="nav p-3 text-center" data-p="home">🏠<br>Home</a>
+    <a href="#notices" class="nav p-3 text-center" data-p="notices">📢<br>Notices</a>
+    <a href="#exams" class="nav p-3 text-center" data-p="exams">📝<br>Exams</a>
+    <a href="#rooms" class="nav p-3 text-center" data-p="rooms">🏫<br>Rooms</a>
+    <a href="#departments" class="nav p-3 text-center" data-p="departments">☎️<br>Depts</a>
+    <a href="#faqs" class="nav p-3 text-center" data-p="faqs">❓<br>FAQ</a>
+  </nav>
+
+  <script>
+    // ====== STEP 1: PASTE YOUR SUPABASE DETAILS HERE ======
+    const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_xInsvmdM6kVMcQOa234ciA_rzhl8wTU"; // starts with sb_publishable_
+    // =======================================================
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const app = document.getElementById("app");
+    const cache = {};
+
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const card = h => `<div class="bg-white rounded-xl shadow-sm border p-4 mb-3">${h}</div>`;
+    const input = "w-full border rounded-lg p-2 mb-3 bg-white";
+    const uniq = (rows, k) => [...new Set(rows.map(r => r[k]))].filter(v => v !== null && v !== "");
+
+    async function getData(table) {
+      if (cache[table]) return cache[table];
+      const { data, error } = await db.from(table).select("*");
+      if (error) throw new Error(table + ": " + error.message);
+      return (cache[table] = data);
+    }
+
+    function select(id, label, options) {
+      return `<select id="${id}" class="${input}"><option value="">${label}</option>` +
+        options.map(o => `<option>${esc(o)}</option>`).join("") + `</select>`;
+    }
+    const val = id => document.getElementById(id).value;
+    const wire = (ids, fn) => ids.forEach(id => document.getElementById(id).addEventListener("input", fn));
+    const empty = `<p class="text-slate-500 text-center py-6">No results found.</p>`;
+
+    const pages = {
+      async home() {
+        const [n, e] = await Promise.all([getData("notices"), getData("exams")]);
+        const latest = [...n].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+        const soon = [...e].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+        app.innerHTML = `
+      <input id="q" class="${input}" placeholder="🔍 Search notices, exams, departments, FAQs...">
+      <div id="results"></div>
+      <div id="homeBody">
+        <h2 class="font-bold mb-2">Latest notices</h2>
+        ${latest.map(x => card(`<b>${esc(x.title)}</b><p class="text-sm text-slate-600">${esc(x.date)} · ${esc(x.department)}</p>`)).join("")}
+        <h2 class="font-bold mb-2 mt-4">Upcoming exams</h2>
+        ${soon.map(x => card(`<b>${esc(x.subject)}</b> (${esc(x.course)} Sem ${esc(x.semester)})<p class="text-sm text-slate-600">${esc(x.date)} · ${esc(x.time)} · ${esc(x.room)}</p>`)).join("")}
+      </div>`;
+        document.getElementById("q").addEventListener("input", async ev => {
+          const t = ev.target.value.trim().toLowerCase();
+          const body = document.getElementById("homeBody"), out = document.getElementById("results");
+          if (!t) { out.innerHTML = ""; body.style.display = ""; return; }
+          body.style.display = "none";
+          const tables = ["notices", "exams", "rooms", "departments", "faqs"];
+          const all = await Promise.all(tables.map(getData));
+          let html = "";
+          tables.forEach((name, i) => all[i].filter(r => JSON.stringify(r).toLowerCase().includes(t)).forEach(r => {
+            const title = r.title || r.subject || r.class || r.name || r.question;
+            const sub = r.description || r.answer || r.services || [r.date, r.time, r.room || r.room_number].filter(Boolean).join(" · ");
+            html += card(`<span class="text-xs uppercase text-blue-600">${name}</span><br><b>${esc(title)}</b><p class="text-sm text-slate-600">${esc(sub)}</p>`);
+          }));
+          out.innerHTML = html || empty;
+        });
+      },
+
+      async notices() {
+        const rows = (await getData("notices")).sort((a, b) => b.date.localeCompare(a.date));
+        app.innerHTML = `<h2 class="font-bold text-lg mb-3">Notices</h2>
+      <input id="q" class="${input}" placeholder="Search notices...">
+      ${select("dep", "All departments", uniq(rows, "department"))}<div id="list"></div>`;
+        const draw = () => {
+          const t = val("q").toLowerCase(), d = val("dep");
+          const f = rows.filter(r => (!d || r.department === d) && (r.title + r.description).toLowerCase().includes(t));
+          document.getElementById("list").innerHTML = f.map(r => card(
+            `<b>${esc(r.title)}</b><p class="text-sm my-1">${esc(r.description)}</p>
+         <p class="text-xs text-slate-500">${esc(r.date)} · ${esc(r.department)}</p>
+         ${r.pdf_link ? `<a class="text-blue-600 text-sm" href="${esc(r.pdf_link)}" target="_blank">Open PDF</a>` : ""}`)).join("") || empty;
+        };
+        wire(["q", "dep"], draw); draw();
+      },
+
+      async exams() {
+        const rows = (await getData("exams")).sort((a, b) => a.date.localeCompare(b.date));
+        app.innerHTML = `<h2 class="font-bold text-lg mb-3">Exam Schedule</h2>
+      ${select("course", "All courses", uniq(rows, "course"))}
+      ${select("sem", "All semesters", uniq(rows, "semester").sort((a, b) => a - b))}<div id="list"></div>`;
+        const draw = () => {
+          const c = val("course"), s = val("sem");
+          const f = rows.filter(r => (!c || r.course === c) && (!s || String(r.semester) === s));
+          document.getElementById("list").innerHTML = f.map(r => card(
+            `<b>${esc(r.subject)}</b><p class="text-sm">${esc(r.course)} · Semester ${esc(r.semester)}</p>
+         <p class="text-sm text-slate-600">📅 ${esc(r.date)} · ⏰ ${esc(r.time)} · 📍 ${esc(r.room)}</p>`)).join("") || empty;
+        };
+        wire(["course", "sem"], draw); draw();
+      },
+
+      async rooms() {
+        const rows = await getData("rooms");
+        app.innerHTML = `<h2 class="font-bold text-lg mb-3">Classroom Finder</h2>
+      ${select("cls", "All classes", uniq(rows, "class"))}
+      ${select("day", "All days", uniq(rows, "day"))}<div id="list"></div>`;
+        const draw = () => {
+          const c = val("cls"), d = val("day");
+          const f = rows.filter(r => (!c || r.class === c) && (!d || r.day === d));
+          document.getElementById("list").innerHTML = f.map(r => card(
+            `<b>${esc(r.class)}</b><p class="text-sm text-slate-600">${esc(r.day)} · ${esc(r.time)}</p>
+         <p class="text-blue-700 font-semibold">📍 ${esc(r.room_number)}</p>`)).join("") || empty;
+        };
+        wire(["cls", "day"], draw); draw();
+      },
+
+      async departments() {
+        const rows = await getData("departments");
+        app.innerHTML = `<h2 class="font-bold text-lg mb-3">Departments</h2>` + rows.map(r => card(
+          `<b class="text-blue-700">${esc(r.name)}</b>
+       <p class="text-sm mt-1">📍 ${esc(r.location)}</p>
+       <p class="text-sm">📞 ${esc(r.contact)}</p>
+       <p class="text-sm">🕒 ${esc(r.timings)}</p>
+       <p class="text-sm text-slate-600 mt-1">${esc(r.services)}</p>`)).join("");
+      },
+
+      async faqs() {
+        const rows = await getData("faqs");
+        app.innerHTML = `<h2 class="font-bold text-lg mb-3">FAQ</h2>` + rows.map(r =>
+          `<details class="bg-white rounded-xl shadow-sm border p-4 mb-3">
+         <summary class="font-semibold cursor-pointer">${esc(r.question)}</summary>
+         <p class="mt-2 text-sm text-slate-600">${esc(r.answer)}</p></details>`).join("");
+      },
+    };
+
+    async function route() {
+      const p = (location.hash || "#home").slice(1);
+      const page = pages[p] ? p : "home";
+      document.querySelectorAll(".nav").forEach(a =>
+        a.classList.toggle("text-blue-700", a.dataset.p === page));
+      app.innerHTML = `<p class="text-center text-slate-500 py-10">Loading...</p>`;
+      try { await pages[page](); }
+      catch (e) {
+        app.innerHTML = card(`<b class="text-red-600">Could not load data</b>
+      <p class="text-sm mt-1">${esc(e.message)}</p>
+      <p class="text-xs text-slate-500 mt-2">Check that your key is pasted correctly and the SQL access step was run.</p>`);
+      }
+    }
+    window.addEventListener("hashchange", route);
+    route();
+  </script>
+</body>
+
+</html>
