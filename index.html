@@ -712,6 +712,206 @@
       gap: 8px;
       align-items: center;
     }
+
+    .pickhero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 26px;
+      padding: 18px;
+      margin-bottom: 6px;
+      color: #fff;
+      background: radial-gradient(circle at 88% 0%, rgba(255, 183, 3, .55), transparent 45%), linear-gradient(135deg, #17236B, #2B50F5 62%, #7A4DFF);
+      box-shadow: 0 14px 30px rgba(43, 80, 245, .28);
+    }
+
+    .pickhero::after {
+      content: "🎓";
+      position: absolute;
+      right: -6px;
+      top: -16px;
+      font-size: 96px;
+      opacity: .16;
+      transform: rotate(14deg);
+      pointer-events: none;
+    }
+
+    .pk-title {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .pk-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .field {
+      text-align: left;
+      color: #fff;
+      background: rgba(255, 255, 255, .16);
+      border: 1.5px solid rgba(255, 255, 255, .32);
+      border-radius: 16px;
+      padding: 10px 34px 10px 14px;
+      position: relative;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      min-width: 0;
+    }
+
+    .field small {
+      display: block;
+      font-size: 12px;
+      opacity: .85;
+      font-weight: 600;
+    }
+
+    .field b {
+      display: block;
+      font-size: 16px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .field i {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-60%);
+      font-style: normal;
+      font-size: 20px;
+      opacity: .9;
+    }
+
+    .field.has {
+      background: #fff;
+      color: #0F1B3D;
+      border-color: #fff;
+    }
+
+    .field.has small {
+      opacity: .65;
+    }
+
+    .field:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      visibility: hidden;
+      transition: visibility .3s;
+    }
+
+    .sheet.open {
+      visibility: visible;
+    }
+
+    .sh-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 18, 38, .6);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .sheet.open .sh-bg {
+      opacity: 1;
+    }
+
+    .sh-panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-width: 720px;
+      margin: 0 auto;
+      max-height: 75dvh;
+      overflow: auto;
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      padding: 10px 18px calc(20px + env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .sheet.open .sh-panel {
+      transform: none;
+    }
+
+    .sh-grab {
+      width: 42px;
+      height: 5px;
+      border-radius: 9px;
+      background: var(--line);
+      margin: 4px auto 12px;
+    }
+
+    .sh-panel h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .opt {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 18px;
+      border: 2px solid var(--line);
+      background: var(--bg);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .opt.sel {
+      border-color: var(--blue);
+      background: var(--soft);
+    }
+
+    .bd {
+      flex: none;
+      min-width: 50px;
+      height: 50px;
+      padding: 0 8px;
+      border-radius: 16px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+    }
+
+    .ol {
+      flex: 1;
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .ck {
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 20px;
+      visibility: hidden;
+    }
+
+    .opt.sel .ck {
+      visibility: visible;
+    }
   </style>
 </head>
 
@@ -731,6 +931,15 @@
     <a href="#departments" data-p="departments"><span>☎️</span>Offices</a>
     <a href="#faqs" data-p="faqs"><span>❓</span>FAQ</a>
   </nav>
+
+  <div id="sheet" class="sheet">
+    <div class="sh-bg"></div>
+    <div class="sh-panel" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+      <div class="sh-grab"></div>
+      <h3 id="shTitle"></h3>
+      <div id="shList"></div>
+    </div>
+  </div>
 
   <script>
     // ====== PASTE YOUR SUPABASE DETAILS HERE ======
@@ -752,6 +961,19 @@
     const hue = s => [...String(s)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
     const tagCss = s => `background:hsl(${hue(s)} 80% 50% / .16);color:hsl(${hue(s)} 70% 38%)`;
     const empty = t => `<div class="empty-msg">${t}</div>`;
+
+    const sheet = $("sheet");
+    function closeSheet() {sheet.classList.remove("open");}
+    function openSheet(title, items, selected, onPick) {
+      $("shTitle").textContent = title;
+      $("shList").innerHTML = items.map((it, i) => `<button class="opt${String(it.value) === String(selected) ? " sel" : ""}" data-i="${i}">
+    <span class="bd" style="background:hsl(${hue(it.badge)} 65% 40%)">${esc(it.badge)}</span><span class="ol">${esc(it.label)}</span><span class="ck">✓</span></button>`).join("")
+        || `<p class="empty-msg">Nothing to choose yet.</p>`;
+      $("shList").onclick = e => {const b = e.target.closest(".opt"); if (!b) return; closeSheet(); onPick(items[b.dataset.i].value);};
+      sheet.querySelector(".sh-panel").scrollTop = 0; sheet.classList.add("open");
+    }
+    sheet.querySelector(".sh-bg").onclick = closeSheet;
+    document.addEventListener("keydown", e => {if (e.key === "Escape") closeSheet();});
 
     async function getData(t) {
       if (cache[t]) return cache[t];
@@ -806,16 +1028,24 @@
 
         app.innerHTML = `
       <h1 class="hello">${g} 👋</h1><p class="sub">Choose your course to see your timetable, exams and notices.</p>
-      <div class="pick">
-        <label>Course<select id="course"><option value="">Select course</option>${courses.map(c => `<option>${esc(c)}</option>`).join("")}</select></label>
-        <label>Semester<select id="sem" disabled><option value="">Select semester</option></select></label>
+      <div class="pickhero">
+        <div class="pk-title">Pick your class</div>
+        <div class="pk-grid">
+          <button class="field" id="fCourse" aria-haspopup="dialog"><small>Course</small><b id="vCourse">Select course</b><i>⌄</i></button>
+          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>Semester</small><b id="vSem">Select semester</b><i>⌄</i></button>
+        </div>
       </div>
       <div id="mine"></div>`;
 
-        const fillSems = c => {$("sem").innerHTML = `<option value="">Select semester</option>` + semsFor(c).map(x => `<option value="${x}">Semester ${x}</option>`).join(""); $("sem").disabled = !c;};
+        let course = "", sem = "";
+        const paint = () => {
+          $("vCourse").textContent = course || "Select course"; $("fCourse").classList.toggle("has", !!course);
+          $("vSem").textContent = sem ? "Semester " + sem : "Select semester"; $("fSem").classList.toggle("has", !!sem);
+          $("fSem").disabled = !course;
+        };
         const mineEl = $("mine");
         const render = () => {
-          const c = $("course").value, sm = $("sem").value;
+          const c = course, sm = sem;
           try {localStorage.setItem("ca_pick", JSON.stringify({course: c, sem: sm}));} catch (err) { }
           if (!c || !sm) {
             mineEl.innerHTML = `<div class="ticket empty"><b>${c ? "Now choose your semester" : "Pick your course and semester"}</b>
@@ -843,13 +1073,18 @@
         <div class="sec" style="margin-top:22px"><h2>Notices for you</h2><a href="#notices">See all</a></div>
         <div class="list">${my.map(noticeRow).join("") || empty("No notices right now.")}</div>`;
         };
-        $("course").addEventListener("change", () => {fillSems($("course").value); render();});
-        $("sem").addEventListener("change", render);
+        $("fCourse").onclick = () => openSheet("Choose your course", courses.map(c => ({value: c, label: c, badge: c})), course, v => {
+          if (v !== course) sem = "";
+          course = v; paint(); render();
+          if (!sem) setTimeout(() => $("fSem").click(), 280);
+        });
+        $("fSem").onclick = () => openSheet("Choose your semester", semsFor(course).map(x => ({value: String(x), label: "Semester " + x, badge: String(x)})), sem, v => {sem = v; paint(); render();});
         let saved = {}; try {saved = JSON.parse(localStorage.getItem("ca_pick") || "{}");} catch (err) { }
         if (saved.course && courses.includes(saved.course)) {
-          $("course").value = saved.course; fillSems(saved.course);
-          if (saved.sem && semsFor(saved.course).map(String).includes(String(saved.sem))) $("sem").value = saved.sem;
+          course = saved.course;
+          if (saved.sem && semsFor(course).map(String).includes(String(saved.sem))) sem = String(saved.sem);
         }
+        paint();
         render();
       },
 
