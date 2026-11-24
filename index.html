@@ -1,723 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>College Assistant</title>
-  <meta name="theme-color" content="#0F1B3D">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <style>
-    :root {
-      --bg: #F2F5FB;
-      --surface: #fff;
-      --ink: #0F1B3D;
-      --muted: #5B6785;
-      --line: #E1E7F2;
-      --blue: #2B50F5;
-      --sun: #FFB703;
-      --coral: #FF5D5D;
-      --mint: #0EA678;
-      --violet: #7A4DFF;
-      --soft: #EAF0FF;
-      --tk: #0F1B3D;
-    }
-
-    [data-theme="dark"] {
-      --tk: #24347A;
-      --bg: #0B1226;
-      --surface: #141D38;
-      --ink: #EEF2FF;
-      --muted: #9AA7C7;
-      --line: #243157;
-      --soft: #1B2750;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      scroll-padding-top: 70px;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.45;
-      padding-bottom: calc(86px + env(safe-area-inset-bottom));
-    }
-
-    h1,
-    h2,
-    h3,
-    .disp {
-      font-family: "Bricolage Grotesque", system-ui, sans-serif;
-      letter-spacing: -.02em;
-      margin: 0;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button,
-    input,
-    select {
-      font: inherit;
-      color: inherit;
-    }
-
-    :focus-visible {
-      outline: 3px solid var(--blue);
-      outline-offset: 2px;
-    }
-
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: color-mix(in srgb, var(--bg) 88%, transparent);
-      backdrop-filter: blur(10px);
-      padding: calc(10px + env(safe-area-inset-top)) 18px 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 11px;
-      background: var(--tk);
-      color: var(--sun);
-      display: grid;
-      place-items: center;
-      font-size: 18px;
-    }
-
-    .top b {
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-size: 18px;
-      flex: 1;
-      letter-spacing: -.02em;
-    }
-
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      cursor: pointer;
-      font-size: 17px;
-    }
-
-    main {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 6px 18px 0;
-    }
-
-    .hello {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1.1;
-      margin: 10px 0 4px;
-    }
-
-    .sub {
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-
-    .search {
-      width: 100%;
-      padding: 14px 16px 14px 44px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%238A94B0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='9' cy='9' r='6'/%3E%3Cpath d='M14 14l4 4'/%3E%3C/svg%3E") 14px 50% no-repeat;
-    }
-
-    /* the memorable thing: next exam as a ticket */
-    .ticket {
-      display: flex;
-      margin: 18px 0 22px;
-      background: var(--tk);
-      color: #fff;
-      border-radius: 22px;
-      position: relative;
-      overflow: hidden;
-      animation: slide .6s cubic-bezier(.2, .8, .2, 1) both;
-    }
-
-    @keyframes slide {
-      from {
-        opacity: 0;
-        transform: translateY(14px) rotate(-.6deg)
-      }
-
-      to {
-        opacity: 1;
-        transform: none
-      }
-    }
-
-    .stub {
-      width: 104px;
-      padding: 18px 8px;
-      text-align: center;
-      background: var(--sun);
-      color: #0F1B3D;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      flex: none;
-    }
-
-    .stub .n {
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-weight: 800;
-      font-size: 46px;
-      line-height: .95;
-    }
-
-    .stub .m {
-      font-weight: 700;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    .perf {
-      width: 0;
-      border-left: 3px dotted rgba(255, 255, 255, .35);
-      margin: 14px 0;
-      position: relative;
-    }
-
-    .perf::before,
-    .perf::after {
-      content: "";
-      position: absolute;
-      left: -12px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--bg);
-    }
-
-    .perf::before {
-      top: -25px
-    }
-
-    .perf::after {
-      bottom: -25px
-    }
-
-    .tbody {
-      padding: 16px 18px;
-      min-width: 0;
-    }
-
-    .tbody small {
-      color: #AFC0FF;
-      font-size: 13px;
-    }
-
-    .tbody h3 {
-      font-size: 22px;
-      line-height: 1.15;
-      margin: 4px 0 8px;
-    }
-
-    .tmeta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 14px;
-      font-size: 14px;
-      color: #DCE4FF;
-    }
-
-    .when {
-      display: inline-block;
-      margin-top: 10px;
-      background: var(--coral);
-      color: #fff;
-      font-weight: 700;
-      border-radius: 99px;
-      padding: 3px 12px;
-      font-size: 13px;
-    }
-
-    .ticket.empty {
-      background: var(--soft);
-      color: var(--ink);
-      padding: 20px;
-      display: block;
-    }
-
-    .tiles {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 26px;
-    }
-
-    .tile {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px 8px 12px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 13.5px;
-    }
-
-    .tile i {
-      display: grid;
-      place-items: center;
-      width: 46px;
-      height: 46px;
-      margin: 0 auto 8px;
-      border-radius: 15px;
-      font-style: normal;
-      font-size: 22px;
-      color: #fff;
-    }
-
-    .sec {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin: 4px 0 8px;
-    }
-
-    .sec h2 {
-      font-size: 21px;
-      font-weight: 800;
-    }
-
-    .sec a {
-      color: var(--blue);
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .ptitle {
-      font-size: 30px;
-      font-weight: 800;
-      margin: 12px 0 2px;
-    }
-
-    .pills {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 0 12px;
-      scrollbar-width: none;
-    }
-
-    .pills::-webkit-scrollbar {
-      display: none;
-    }
-
-    .pill {
-      flex: none;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 99px;
-      padding: 7px 15px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .pill.on {
-      background: var(--ink);
-      color: var(--bg);
-      border-color: var(--ink);
-      font-weight: 600;
-    }
-
-    [data-theme="dark"] .pill.on {
-      background: var(--sun);
-      color: #0F1B3D;
-      border-color: var(--sun);
-    }
-
-    .list {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .item {
-      display: flex;
-      gap: 14px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .item:last-child {
-      border-bottom: 0;
-    }
-
-    .date {
-      flex: none;
-      width: 50px;
-      text-align: center;
-      border-radius: 14px;
-      background: var(--soft);
-      padding: 6px 0;
-      height: fit-content;
-    }
-
-    .date b {
-      display: block;
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-size: 21px;
-      line-height: 1;
-    }
-
-    .date span {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .item h3 {
-      font-size: 16.5px;
-      font-weight: 600;
-      margin: 0 0 3px;
-      font-family: system-ui, sans-serif;
-      letter-spacing: 0;
-    }
-
-    .item p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .item .body {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .tag {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 8px;
-      padding: 2px 9px;
-      margin-top: 6px;
-    }
-
-    .new {
-      background: var(--coral);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      border-radius: 6px;
-      padding: 2px 7px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-
-    .room {
-      flex: none;
-      align-self: center;
-      background: var(--ink);
-      color: var(--sun);
-      font-weight: 800;
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    [data-theme="dark"] .room {
-      background: var(--sun);
-      color: #0F1B3D;
-    }
-
-    .dot {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .link {
-      display: inline-block;
-      margin-top: 8px;
-      color: var(--blue);
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .dept {
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .dept:last-child {
-      border-bottom: 0;
-    }
-
-    .dept h3 {
-      font-size: 19px;
-      font-weight: 800;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .dept .em {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      background: var(--soft);
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-    }
-
-    .dept p {
-      margin: 6px 0 0;
-      font-size: 14.5px;
-    }
-
-    .dept .mut {
-      color: var(--muted);
-    }
-
-    .acts {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border-radius: 12px;
-      padding: 9px 16px;
-      font-weight: 700;
-      font-size: 14px;
-      background: var(--ink);
-      color: var(--bg);
-    }
-
-    .btn.alt {
-      background: var(--soft);
-      color: var(--ink);
-    }
-
-    details {
-      border-bottom: 1px solid var(--line);
-      padding: 14px 16px;
-    }
-
-    details:last-child {
-      border-bottom: 0;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    summary::after {
-      content: "+";
-      font-size: 22px;
-      line-height: 1;
-      color: var(--blue);
-      transition: transform .2s;
-    }
-
-    details[open] summary::after {
-      transform: rotate(45deg);
-    }
-
-    details p {
-      margin: 10px 0 0;
-      color: var(--muted);
-    }
-
-    .empty-msg {
-      text-align: center;
-      color: var(--muted);
-      padding: 34px 10px;
-    }
-
-    .err {
-      background: #FFECEC;
-      color: #8A1C1C;
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .sk {
-      height: 76px;
-      border-radius: 18px;
-      margin-bottom: 12px;
-      background: linear-gradient(90deg, var(--line), var(--soft), var(--line));
-      background-size: 200% 100%;
-      animation: sh 1.2s infinite;
-    }
-
-    @keyframes sh {
-      to {
-        background-position: -200% 0
-      }
-    }
-
-    .fab {
-      position: fixed;
-      right: 16px;
-      bottom: calc(88px + env(safe-area-inset-bottom));
-      z-index: 30;
-      background: var(--blue);
-      color: #fff;
-      border-radius: 99px;
-      padding: 13px 20px;
-      font-weight: 700;
-      box-shadow: 0 8px 24px rgba(43, 80, 245, .4);
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 25;
-      background: var(--surface);
-      border-top: 1px solid var(--line);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
-    }
-
-    nav a {
-      flex: 1;
-      text-align: center;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--muted);
-      padding: 2px 0;
-    }
-
-    nav a span {
-      display: block;
-      width: 52px;
-      margin: 0 auto 2px;
-      padding: 4px 0;
-      border-radius: 99px;
-      font-size: 19px;
-    }
-
-    nav a.on {
-      color: var(--ink);
-    }
-
-    nav a.on span {
-      background: var(--sun);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation: none !important;
-        transition: none !important;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>College Assistant</title>
+<meta name="theme-color" content="#0F1B3D">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root { --bg:#F2F5FB; --surface:#fff; --ink:#0F1B3D; --muted:#5B6785; --line:#E1E7F2; --blue:#2B50F5; --sun:#FFB703; --coral:#FF5D5D; --mint:#0EA678; --violet:#7A4DFF; --soft:#EAF0FF; --tk:#0F1B3D; }
+[data-theme="dark"] { --tk:#24347A; --bg:#0B1226; --surface:#141D38; --ink:#EEF2FF; --muted:#9AA7C7; --line:#243157; --soft:#1B2750; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-padding-top: 70px; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.45; padding-bottom:calc(86px + env(safe-area-inset-bottom)); }
+h1,h2,h3,.disp { font-family:"Bricolage Grotesque", system-ui, sans-serif; letter-spacing:-.02em; margin:0; }
+a { color:inherit; text-decoration:none; } button,input,select { font:inherit; color:inherit; }
+:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+
+.top { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px);
+       padding:calc(10px + env(safe-area-inset-top)) 18px 10px; display:flex; align-items:center; gap:10px; }
+.logo { width:34px; height:34px; border-radius:11px; background:var(--tk); color:var(--sun); display:grid; place-items:center; font-size:18px; }
+.top b { font-family:"Bricolage Grotesque",sans-serif; font-size:18px; flex:1; letter-spacing:-.02em; }
+.icon-btn { width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:var(--surface); cursor:pointer; font-size:17px; }
+main { max-width:720px; margin:0 auto; padding:6px 18px 0; }
+
+.hello { font-size:30px; font-weight:800; line-height:1.1; margin:10px 0 4px; }
+.sub { color:var(--muted); margin:0 0 16px; }
+.search { width:100%; padding:14px 16px 14px 44px; border:1px solid var(--line); border-radius:16px; background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%238A94B0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='9' cy='9' r='6'/%3E%3Cpath d='M14 14l4 4'/%3E%3C/svg%3E") 14px 50% no-repeat; }
+
+/* the memorable thing: next exam as a ticket */
+.ticket { display:flex; margin:18px 0 22px; background:var(--tk); color:#fff; border-radius:22px; position:relative; overflow:hidden; animation:slide .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes slide { from { opacity:0; transform:translateY(14px) rotate(-.6deg) } to { opacity:1; transform:none } }
+.stub { width:104px; padding:18px 8px; text-align:center; background:var(--sun); color:#0F1B3D; display:flex; flex-direction:column; justify-content:center; flex:none; }
+.stub .n { font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:46px; line-height:.95; }
+.stub .m { font-weight:700; font-size:14px; margin-top:4px; }
+.perf { width:0; border-left:3px dotted rgba(255,255,255,.35); margin:14px 0; position:relative; }
+.perf::before,.perf::after { content:""; position:absolute; left:-12px; width:22px; height:22px; border-radius:50%; background:var(--bg); }
+.perf::before { top:-25px } .perf::after { bottom:-25px }
+.tbody { padding:16px 18px; min-width:0; }
+.tbody small { color:#AFC0FF; font-size:13px; }
+.tbody h3 { font-size:22px; line-height:1.15; margin:4px 0 8px; }
+.tmeta { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:14px; color:#DCE4FF; }
+.when { display:inline-block; margin-top:10px; background:var(--coral); color:#fff; font-weight:700; border-radius:99px; padding:3px 12px; font-size:13px; }
+.ticket.empty { background:var(--soft); color:var(--ink); padding:20px; display:block; }
+
+.tiles { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:26px; }
+.tile { flex:0 0 calc((100% - 24px) / 3); background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:14px 8px 12px; text-align:center; font-weight:600; font-size:13.5px; }
+.tile i { display:grid; place-items:center; width:46px; height:46px; margin:0 auto 8px; border-radius:15px; font-style:normal; font-size:22px; color:#fff; }
+.sec { display:flex; justify-content:space-between; align-items:baseline; margin:4px 0 8px; }
+.sec h2 { font-size:21px; font-weight:800; } .sec a { color:var(--blue); font-weight:600; font-size:14px; }
+.ptitle { font-size:30px; font-weight:800; margin:12px 0 2px; }
+
+.pills { display:flex; gap:8px; overflow-x:auto; padding:4px 0 12px; scrollbar-width:none; }
+.pills::-webkit-scrollbar { display:none; }
+.pill { flex:none; border:1px solid var(--line); background:var(--surface); border-radius:99px; padding:7px 15px; font-size:14px; cursor:pointer; }
+.pill.on { background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600; }
+[data-theme="dark"] .pill.on { background:var(--sun); color:#0F1B3D; border-color:var(--sun); }
+
+.list { background:var(--surface); border:1px solid var(--line); border-radius:20px; overflow:hidden; }
+.item { display:flex; gap:14px; padding:14px 16px; border-bottom:1px solid var(--line); }
+.item:last-child { border-bottom:0; }
+.date { flex:none; width:50px; text-align:center; border-radius:14px; background:var(--soft); padding:6px 0; height:fit-content; }
+.date b { display:block; font-family:"Bricolage Grotesque",sans-serif; font-size:21px; line-height:1; } .date span { font-size:12px; color:var(--muted); font-weight:600; }
+.item h3 { font-size:16.5px; font-weight:600; margin:0 0 3px; font-family:system-ui,sans-serif; letter-spacing:0; }
+.item p { margin:0; color:var(--muted); font-size:14px; }
+.item .body { min-width:0; flex:1; }
+.tag { display:inline-block; font-size:12px; font-weight:700; border-radius:8px; padding:2px 9px; margin-top:6px; }
+.new { background:var(--coral); color:#fff; font-size:11px; font-weight:800; border-radius:6px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
+.room { flex:none; align-self:center; background:var(--ink); color:var(--sun); font-weight:800; border-radius:12px; padding:8px 12px; font-size:14px; text-align:center; }
+[data-theme="dark"] .room { background:var(--sun); color:#0F1B3D; }
+.dot { color:var(--muted); font-size:13px; }
+.link { display:inline-block; margin-top:8px; color:var(--blue); font-weight:600; font-size:14px; }
+
+.dept { padding:16px; border-bottom:1px solid var(--line); } .dept:last-child { border-bottom:0; }
+.dept h3 { font-size:19px; font-weight:800; display:flex; gap:10px; align-items:center; }
+.dept .em { width:38px; height:38px; border-radius:12px; background:var(--soft); display:grid; place-items:center; font-size:20px; }
+.dept p { margin:6px 0 0; font-size:14.5px; } .dept .mut { color:var(--muted); }
+.acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.btn { border-radius:12px; padding:9px 16px; font-weight:700; font-size:14px; background:var(--ink); color:var(--bg); }
+.btn.alt { background:var(--soft); color:var(--ink); }
+details { border-bottom:1px solid var(--line); padding:14px 16px; } details:last-child { border-bottom:0; }
+summary { cursor:pointer; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:12px; }
+summary::after { content:"+"; font-size:22px; line-height:1; color:var(--blue); transition:transform .2s; } details[open] summary::after { transform:rotate(45deg); }
+details p { margin:10px 0 0; color:var(--muted); }
+
+.empty-msg { text-align:center; color:var(--muted); padding:34px 10px; }
+.err { background:#FFECEC; color:#8A1C1C; border-radius:16px; padding:16px; }
+.sk { height:76px; border-radius:18px; margin-bottom:12px; background:linear-gradient(90deg,var(--line),var(--soft),var(--line)); background-size:200% 100%; animation:sh 1.2s infinite; }
+@keyframes sh { to { background-position:-200% 0 } }
+
+.fab { position:fixed; right:16px; bottom:calc(88px + env(safe-area-inset-bottom)); z-index:30; color:#fff; border-radius:99px; padding:13px 20px 13px 16px;
+       font-weight:800; font-size:15px; display:flex; gap:8px; align-items:center; background:linear-gradient(135deg,#2B50F5,#7A4DFF);
+       box-shadow:0 8px 24px rgba(79,70,229,.45); animation:glow 2.4s ease-in-out infinite; }
+.fab .sp { font-size:19px; } .fab small { background:#FFB703; color:#0F1B3D; font-size:10.5px; font-weight:800; border-radius:6px; padding:1px 6px; }
+@keyframes glow { 0%,100% { box-shadow:0 8px 24px rgba(79,70,229,.45), 0 0 0 0 rgba(122,77,255,.5) } 50% { box-shadow:0 8px 24px rgba(79,70,229,.45), 0 0 0 11px rgba(122,77,255,0) } }
+nav { position:fixed; bottom:0; left:0; right:0; z-index:25; background:var(--surface); border-top:1px solid var(--line); display:flex; justify-content:space-around;
+      padding:8px 4px calc(8px + env(safe-area-inset-bottom)); }
+nav a { flex:1; text-align:center; font-size:11.5px; font-weight:600; color:var(--muted); padding:2px 0; }
+nav a span { display:block; width:52px; margin:0 auto 2px; padding:4px 0; border-radius:99px; font-size:19px; }
+nav a.on { color:var(--ink); } nav a.on span { background:var(--sun); }
+@media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
 </head>
-
 <body>
-  <div class="top">
-    <div class="logo">🎓</div><b>College Assistant</b><button id="theme" class="icon-btn"
-      aria-label="Switch light or dark mode">🌙</button>
-  </div>
-  <main id="app"></main>
-  <a class="fab" href="chat.html">💬 Ask AI</a>
-  <nav>
-    <a href="#home" data-p="home"><span>🏠</span>Home</a>
-    <a href="#notices" data-p="notices"><span>📢</span>Notices</a>
-    <a href="#exams" data-p="exams"><span>📝</span>Exams</a>
-    <a href="#rooms" data-p="rooms"><span>🏫</span>Rooms</a>
-    <a href="#departments" data-p="departments"><span>☎️</span>Offices</a>
-    <a href="#faqs" data-p="faqs"><span>❓</span>FAQ</a>
-  </nav>
+<div class="top"><div class="logo">🎓</div><b>College Assistant</b><button id="theme" class="icon-btn" aria-label="Switch light or dark mode">🌙</button></div>
+<main id="app"></main>
+<a class="fab" href="chat.html" aria-label="Ask the AI assistant"><span class="sp">✨</span>Ask AI<small>NEW</small></a>
+<nav>
+  <a href="#home" data-p="home"><span>🏠</span>Home</a>
+  <a href="#notices" data-p="notices"><span>📢</span>Notices</a>
+  <a href="#exams" data-p="exams"><span>📝</span>Exams</a>
+  <a href="#rooms" data-p="rooms"><span>🏫</span>Rooms</a>
+  <a href="#departments" data-p="departments"><span>☎️</span>Offices</a>
+  <a href="#faqs" data-p="faqs"><span>❓</span>FAQ</a>
+</nav>
 
-  <script>
-    // ====== PASTE YOUR SUPABASE DETAILS HERE ======
-    const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_xInsvmdM6kVMcQOa234ciA_rzhl8wTU"; // starts with sb_publishable_
-    // ==============================================
+<script>
+// ====== PASTE YOUR SUPABASE DETAILS HERE ======
+const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
+const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE"; // starts with sb_publishable_
+// ==============================================
 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const app = document.getElementById("app"), cache = {};
-    const $ = id => document.getElementById(id);
-    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-    const uniq = (rows, k) => [...new Set(rows.map(r => r[k]))].filter(v => v !== null && v !== "");
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const D = s => new Date(s + "T00:00:00");
-    const diff = s => Math.round((D(s) - today) / 864e5);
-    const dmon = s => D(s).toLocaleDateString("en-IN", {month: "short"});
-    const dnum = s => D(s).getDate();
-    const rel = n => n < 0 ? "Done" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : `In ${n} days`;
-    const hue = s => [...String(s)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
-    const tagCss = s => `background:hsl(${hue(s)} 80% 50% / .16);color:hsl(${hue(s)} 70% 38%)`;
-    const empty = t => `<div class="empty-msg">${t}</div>`;
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const app = document.getElementById("app"), cache = {};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uniq = (rows, k) => [...new Set(rows.map(r => r[k]))].filter(v => v !== null && v !== "");
+const today = new Date(); today.setHours(0,0,0,0);
+const D = s => new Date(s + "T00:00:00");
+const diff = s => Math.round((D(s) - today) / 864e5);
+const dmon = s => D(s).toLocaleDateString("en-IN", { month: "short" });
+const dnum = s => D(s).getDate();
+const rel = n => n < 0 ? "Done" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : `In ${n} days`;
+const hue = s => [...String(s)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
+const tagCss = s => `background:hsl(${hue(s)} 80% 50% / .16);color:hsl(${hue(s)} 70% 38%)`;
+const empty = t => `<div class="empty-msg">${t}</div>`;
 
-    async function getData(t) {
-      if (cache[t]) return cache[t];
-      const {data, error} = await db.from(t).select("*");
-      if (error) throw new Error(t + ": " + error.message);
-      return (cache[t] = data);
-    }
-    const pills = (id, label, vals) => `<div class="pills" id="${id}">` + ["", ...vals].map(v =>
-      `<button class="pill${v === "" ? " on" : ""}" data-v="${esc(v)}">${v === "" ? label : esc(v)}</button>`).join("") + `</div>`;
-    function bind(id, cb) {
-      const c = $(id);
-      c.addEventListener("click", e => {
-        const b = e.target.closest(".pill"); if (!b) return;
-        c.querySelectorAll(".pill").forEach(x => x.classList.remove("on")); b.classList.add("on"); cb(b.dataset.v);
-      });
-    }
+async function getData(t) {
+  if (cache[t]) return cache[t];
+  const { data, error } = await db.from(t).select("*");
+  if (error) throw new Error(t + ": " + error.message);
+  return (cache[t] = data);
+}
+const pills = (id, label, vals) => `<div class="pills" id="${id}">` + ["", ...vals].map(v =>
+  `<button class="pill${v === "" ? " on" : ""}" data-v="${esc(v)}">${v === "" ? label : esc(v)}</button>`).join("") + `</div>`;
+function bind(id, cb) {
+  const c = $(id);
+  c.addEventListener("click", e => {
+    const b = e.target.closest(".pill"); if (!b) return;
+    c.querySelectorAll(".pill").forEach(x => x.classList.remove("on")); b.classList.add("on"); cb(b.dataset.v);
+  });
+}
 
-    const noticeRow = r => {
-      const n = diff(r.date);
-      return `<div class="item"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
+const noticeRow = r => { const n = diff(r.date);
+  return `<div class="item"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
   <h3>${esc(r.title)}${n <= 0 && n > -8 ? '<span class="new">NEW</span>' : ""}</h3><p>${esc(r.description)}</p>
   <span class="tag" style="${tagCss(r.department)}">${esc(r.department)}</span>
-  ${r.pdf_link ? `<br><a class="link" href="${esc(r.pdf_link)}" target="_blank" rel="noopener">Open PDF</a>` : ""}</div></div>`;
-    };
-    const examRow = r => {
-      const n = diff(r.date);
-      return `<div class="item" style="${n < 0 ? "opacity:.55" : ""}"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
+  ${r.pdf_link ? `<br><a class="link" href="${esc(r.pdf_link)}" target="_blank" rel="noopener">Open PDF</a>` : ""}</div></div>`; };
+const examRow = r => { const n = diff(r.date);
+  return `<div class="item" style="${n < 0 ? "opacity:.55" : ""}"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
   <h3>${esc(r.subject)}</h3><p>${esc(r.course)} · Semester ${esc(r.semester)}</p><p>${esc(r.time)}</p>
-  <span class="tag" style="background:var(--soft);color:var(--ink)">${rel(n)}</span></div><div class="room">${esc(r.room)}</div></div>`;
-    };
+  <span class="tag" style="background:var(--soft);color:var(--ink)">${rel(n)}</span></div><div class="room">${esc(r.room)}</div></div>`; };
 
-    const pages = {
-      async home() {
-        const [n, e] = await Promise.all([getData("notices"), getData("exams")]);
-        const h = new Date().getHours(), g = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-        const next = [...e].filter(x => diff(x.date) >= 0).sort((a, b) => a.date.localeCompare(b.date))[0];
-        const latest = [...n].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
-        const tile = (href, bg, ico, name) => `<a class="tile" href="${href}"><i style="background:${bg}">${ico}</i>${name}</a>`;
-        app.innerHTML = `
+const pages = {
+  async home() {
+    const [n, e] = await Promise.all([getData("notices"), getData("exams")]);
+    const h = new Date().getHours(), g = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+    const next = [...e].filter(x => diff(x.date) >= 0).sort((a, b) => a.date.localeCompare(b.date))[0];
+    const latest = [...n].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+    const tile = (href, bg, ico, name) => `<a class="tile" href="${href}"><i style="background:${bg}">${ico}</i>${name}</a>`;
+    app.innerHTML = `
       <h1 class="hello">${g} 👋</h1><p class="sub">What do you need today?</p>
       <input id="q" class="search" placeholder="Search notices, exams, offices, FAQs" aria-label="Search">
       <div id="results"></div>
@@ -726,106 +178,96 @@
           <div class="tbody"><small>Your next exam</small><h3>${esc(next.subject)}</h3>
           <div class="tmeta"><span>${esc(next.course)} · Sem ${esc(next.semester)}</span><span>🕒 ${esc(next.time)}</span><span>📍 ${esc(next.room)}</span></div>
           <span class="when">${rel(diff(next.date))}</span></div></div>`
-            : `<div class="ticket empty"><b>No upcoming exams</b><p class="sub" style="margin:4px 0 0">New dates will show up here.</p></div>`}
+        : `<div class="ticket empty"><b>No upcoming exams</b><p class="sub" style="margin:4px 0 0">New dates will show up here.</p></div>`}
         <div class="tiles">
           ${tile("#notices", "var(--coral)", "📢", "Notices")}${tile("#exams", "var(--blue)", "📝", "Exams")}${tile("#rooms", "var(--mint)", "🏫", "Rooms")}
-          ${tile("#departments", "var(--violet)", "☎️", "Offices")}${tile("#faqs", "#E89A00", "❓", "FAQ")}${tile("chat.html", "var(--tk)", "💬", "Ask AI")}
+          ${tile("#departments", "var(--violet)", "☎️", "Offices")}${tile("#faqs", "#E89A00", "❓", "FAQ")}
         </div>
         <div class="sec"><h2>Latest notices</h2><a href="#notices">See all</a></div>
         <div class="list">${latest.map(noticeRow).join("")}</div>
       </div>`;
-        $("q").addEventListener("input", async ev => {
-          const t = ev.target.value.trim().toLowerCase(), body = $("homeBody"), out = $("results");
-          if (!t) {out.innerHTML = ""; body.style.display = ""; return;}
-          body.style.display = "none";
-          const names = ["notices", "exams", "rooms", "departments", "faqs"], all = await Promise.all(names.map(getData));
-          let html = "";
-          names.forEach((nm, i) => all[i].filter(r => JSON.stringify(r).toLowerCase().includes(t)).forEach(r => {
-            const title = r.title || r.subject || r.class || r.name || r.question;
-            const sub = r.description || r.answer || r.services || [r.date, r.time, r.room || r.room_number].filter(Boolean).join(" · ");
-            html += `<div class="item"><div class="body"><h3>${esc(title)}</h3><p>${esc(sub)}</p><span class="tag" style="${tagCss(nm)}">${nm}</span></div></div>`;
-          }));
-          out.innerHTML = `<div class="list" style="margin-top:14px">${html || empty("Nothing found. Try another word.")}</div>`;
-        });
-      },
+    $("q").addEventListener("input", async ev => {
+      const t = ev.target.value.trim().toLowerCase(), body = $("homeBody"), out = $("results");
+      if (!t) { out.innerHTML = ""; body.style.display = ""; return; }
+      body.style.display = "none";
+      const names = ["notices", "exams", "rooms", "departments", "faqs"], all = await Promise.all(names.map(getData));
+      let html = "";
+      names.forEach((nm, i) => all[i].filter(r => JSON.stringify(r).toLowerCase().includes(t)).forEach(r => {
+        const title = r.title || r.subject || r.class || r.name || r.question;
+        const sub = r.description || r.answer || r.services || [r.date, r.time, r.room || r.room_number].filter(Boolean).join(" · ");
+        html += `<div class="item"><div class="body"><h3>${esc(title)}</h3><p>${esc(sub)}</p><span class="tag" style="${tagCss(nm)}">${nm}</span></div></div>`;
+      }));
+      out.innerHTML = `<div class="list" style="margin-top:14px">${html || empty("Nothing found. Try another word.")}</div>`;
+    });
+  },
 
-      async notices() {
-        const rows = (await getData("notices")).sort((a, b) => b.date.localeCompare(a.date));
-        app.innerHTML = `<h1 class="ptitle">Notices</h1><p class="sub">Latest first</p>
+  async notices() {
+    const rows = (await getData("notices")).sort((a, b) => b.date.localeCompare(a.date));
+    app.innerHTML = `<h1 class="ptitle">Notices</h1><p class="sub">Latest first</p>
       <input id="q" class="search" placeholder="Search notices" aria-label="Search notices" style="margin-bottom:12px">
       ${pills("deps", "All", uniq(rows, "department"))}<div class="list" id="list"></div>`;
-        let dep = "";
-        const draw = () => {
-          const t = $("q").value.toLowerCase();
-          const f = rows.filter(r => (!dep || r.department === dep) && (r.title + r.description).toLowerCase().includes(t));
-          $("list").innerHTML = f.map(noticeRow).join("") || empty("No notices found.");
-        };
-        bind("deps", v => {dep = v; draw();}); $("q").addEventListener("input", draw); draw();
-      },
+    let dep = "";
+    const draw = () => { const t = $("q").value.toLowerCase();
+      const f = rows.filter(r => (!dep || r.department === dep) && (r.title + r.description).toLowerCase().includes(t));
+      $("list").innerHTML = f.map(noticeRow).join("") || empty("No notices found."); };
+    bind("deps", v => { dep = v; draw(); }); $("q").addEventListener("input", draw); draw();
+  },
 
-      async exams() {
-        const rows = (await getData("exams")).sort((a, b) => a.date.localeCompare(b.date));
-        app.innerHTML = `<h1 class="ptitle">Exam schedule</h1><p class="sub">Pick your course and semester</p>
+  async exams() {
+    const rows = (await getData("exams")).sort((a, b) => a.date.localeCompare(b.date));
+    app.innerHTML = `<h1 class="ptitle">Exam schedule</h1><p class="sub">Pick your course and semester</p>
       ${pills("cs", "All courses", uniq(rows, "course"))}${pills("sm", "All semesters", uniq(rows, "semester").sort((a, b) => a - b).map(x => "Sem " + x))}
       <div class="list" id="list"></div>`;
-        let c = "", s = "";
-        const draw = () => {
-          const f = rows.filter(r => (!c || r.course === c) && (!s || "Sem " + r.semester === s));
-          $("list").innerHTML = f.map(examRow).join("") || empty("No exams found.");
-        };
-        bind("cs", v => {c = v; draw();}); bind("sm", v => {s = v; draw();}); draw();
-      },
+    let c = "", s = "";
+    const draw = () => { const f = rows.filter(r => (!c || r.course === c) && (!s || "Sem " + r.semester === s));
+      $("list").innerHTML = f.map(examRow).join("") || empty("No exams found."); };
+    bind("cs", v => { c = v; draw(); }); bind("sm", v => { s = v; draw(); }); draw();
+  },
 
-      async rooms() {
-        const rows = await getData("rooms");
-        app.innerHTML = `<h1 class="ptitle">Find my classroom</h1><p class="sub">Choose your class and day</p>
+  async rooms() {
+    const rows = await getData("rooms");
+    app.innerHTML = `<h1 class="ptitle">Find my classroom</h1><p class="sub">Choose your class and day</p>
       ${pills("cl", "All classes", uniq(rows, "class"))}${pills("dy", "All days", uniq(rows, "day"))}<div class="list" id="list"></div>`;
-        let c = "", d = "";
-        const draw = () => {
-          const f = rows.filter(r => (!c || r.class === c) && (!d || r.day === d));
-          $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.class)}</h3><p>${esc(r.day)} · ${esc(r.time)}</p></div>
-        <div class="room">${esc(r.room_number)}</div></div>`).join("") || empty("No classes found.");
-        };
-        bind("cl", v => {c = v; draw();}); bind("dy", v => {d = v; draw();}); draw();
-      },
+    let c = "", d = "";
+    const draw = () => { const f = rows.filter(r => (!c || r.class === c) && (!d || r.day === d));
+      $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.class)}</h3><p>${esc(r.day)} · ${esc(r.time)}</p></div>
+        <div class="room">${esc(r.room_number)}</div></div>`).join("") || empty("No classes found."); };
+    bind("cl", v => { c = v; draw(); }); bind("dy", v => { d = v; draw(); }); draw();
+  },
 
-      async departments() {
-        const rows = await getData("departments");
-        const ico = n => /exam/i.test(n) ? "📝" : /admission/i.test(n) ? "🎓" : /account|fee/i.test(n) ? "💰" : /librar/i.test(n) ? "📚" : /comput|cs/i.test(n) ? "💻" : /placement/i.test(n) ? "💼" : "🏛️";
-        app.innerHTML = `<h1 class="ptitle">Offices and departments</h1><p class="sub">Where to go and when</p><div class="list">` + rows.map(r => {
-          const em = (String(r.contact).match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0], ph = (String(r.contact).match(/\d[\d\s-]{6,}\d/) || [])[0];
-          return `<div class="dept"><h3><span class="em">${ico(r.name)}</span>${esc(r.name)}</h3>
+  async departments() {
+    const rows = await getData("departments");
+    const ico = n => /exam/i.test(n) ? "📝" : /admission/i.test(n) ? "🎓" : /account|fee/i.test(n) ? "💰" : /librar/i.test(n) ? "📚" : /comput|cs/i.test(n) ? "💻" : /placement/i.test(n) ? "💼" : "🏛️";
+    app.innerHTML = `<h1 class="ptitle">Offices and departments</h1><p class="sub">Where to go and when</p><div class="list">` + rows.map(r => {
+      const em = (String(r.contact).match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0], ph = (String(r.contact).match(/\d[\d\s-]{6,}\d/) || [])[0];
+      return `<div class="dept"><h3><span class="em">${ico(r.name)}</span>${esc(r.name)}</h3>
         <p>📍 ${esc(r.location)}</p><p>🕒 ${esc(r.timings)}</p><p class="mut">${esc(r.services)}</p>
         <div class="acts">${ph ? `<a class="btn" href="tel:${esc(ph.replace(/[\s-]/g, ""))}">Call</a>` : ""}${em ? `<a class="btn alt" href="mailto:${esc(em)}">Email</a>` : ""}</div></div>`;
-        }).join("") + `</div>`;
-      },
+    }).join("") + `</div>`;
+  },
 
-      async faqs() {
-        const rows = await getData("faqs");
-        app.innerHTML = `<h1 class="ptitle">Quick answers</h1><p class="sub">Tap a question</p><div class="list">` + rows.map(r =>
-          `<details><summary>${esc(r.question)}</summary><p>${esc(r.answer)}</p></details>`).join("") + `</div>`;
-      },
-    };
+  async faqs() {
+    const rows = await getData("faqs");
+    app.innerHTML = `<h1 class="ptitle">Quick answers</h1><p class="sub">Tap a question</p><div class="list">` + rows.map(r =>
+      `<details><summary>${esc(r.question)}</summary><p>${esc(r.answer)}</p></details>`).join("") + `</div>`;
+  },
+};
 
-    async function route() {
-      const p = (location.hash || "#home").slice(1), page = pages[p] ? p : "home";
-      document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === page));
-      document.querySelector(".fab").style.display = page === "home" ? "none" : "flex";
-      app.innerHTML = `<div class="sk" style="height:44px;width:60%"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
-      try {await pages[page](); window.scrollTo(0, 0);}
-      catch (e) {app.innerHTML = `<div class="err"><b>Could not load data</b><p>${esc(e.message)}</p><p>Check your internet connection and try again.</p></div>`;}
-    }
-    window.addEventListener("hashchange", route);
+async function route() {
+  const p = (location.hash || "#home").slice(1), page = pages[p] ? p : "home";
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === page));
+  app.innerHTML = `<div class="sk" style="height:44px;width:60%"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
+  try { await pages[page](); window.scrollTo(0, 0); }
+  catch (e) { app.innerHTML = `<div class="err"><b>Could not load data</b><p>${esc(e.message)}</p><p>Check your internet connection and try again.</p></div>`; }
+}
+window.addEventListener("hashchange", route);
 
-    function setTheme(t) {
-      document.documentElement.dataset.theme = t; $("theme").textContent = t === "dark" ? "☀️" : "🌙";
-      try {localStorage.setItem("ca_theme", t);} catch (e) { }
-    }
-    let saved = null; try {saved = localStorage.getItem("ca_theme");} catch (e) { }
-    setTheme(saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-    $("theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
-    route();
-  </script>
+function setTheme(t) { document.documentElement.dataset.theme = t; $("theme").textContent = t === "dark" ? "☀️" : "🌙";
+  try { localStorage.setItem("ca_theme", t); } catch (e) {} }
+let saved = null; try { saved = localStorage.getItem("ca_theme"); } catch (e) {}
+setTheme(saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+$("theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+route();
+</script>
 </body>
-
 </html>
