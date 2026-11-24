@@ -912,6 +912,72 @@
     .opt.sel .ck {
       visibility: visible;
     }
+
+    .about {
+      margin: 24px 0 8px;
+    }
+
+    .about h2 {
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .abox {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+    }
+
+    .ahead {
+      padding: 16px;
+      background: var(--soft);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ahead .lg {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: var(--tk);
+      color: var(--sun);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex: none;
+    }
+
+    .ahead b {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-size: 19px;
+      display: block;
+      letter-spacing: -.02em;
+    }
+
+    .ahead span {
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .arow {
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      font-size: 14.5px;
+      line-height: 1.5;
+    }
+
+    .arow i {
+      font-style: normal;
+      flex: none;
+      width: 26px;
+      text-align: center;
+      font-size: 17px;
+    }
   </style>
 </head>
 
@@ -946,6 +1012,24 @@
     const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
     const SUPABASE_KEY = "sb_publishable_xInsvmdM6kVMcQOa234ciA_rzhl8wTU"; // starts with sb_publishable_
     // ==============================================
+
+    // ====== EDIT YOUR COLLEGE DETAILS HERE (shown in "About our college" on the home page) ======
+    const COLLEGE = {
+      name: "Sanskriti University",
+      place: "Mathura, Uttar Pradesh",
+      motto: "For Excellence in Life",
+      lines: [
+        ["🏛️", "A private university in Mathura, Uttar Pradesh, established in 2016."],
+        ["✅", "Recognised by the UGC and a member of the Association of Indian Universities."],
+        ["🌳", "A green campus of more than 40 acres at Chhata, on the Mathura–Delhi Highway (NH-19)."],
+        ["🎓", "Undergraduate, postgraduate and doctoral programmes, including B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA and PhD."],
+        ["📚", "A library, computer labs, a seminar hall and a centre of excellence in robotics and automation."],
+        ["💡", "Its motto is “For Excellence in Life”."],
+        ["📱", "This app brings notices, exam dates, timetables and office contacts together in one place."],
+        ["📞", "For anything not shown here, visit the Examination Cell or Admission Cell, or ask the AI assistant."]
+      ]
+    };
+    // ===========================================================================================
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const app = document.getElementById("app"), cache = {};
@@ -1031,16 +1115,23 @@
       <div class="pickhero">
         <div class="pk-title">Pick your class</div>
         <div class="pk-grid">
-          <button class="field" id="fCourse" aria-haspopup="dialog"><small>Course</small><b id="vCourse">Select course</b><i>⌄</i></button>
-          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>Semester</small><b id="vSem">Select semester</b><i>⌄</i></button>
+          <button class="field" id="fCourse" aria-haspopup="dialog"><small>Course</small><b id="vCourse">Choose</b><i>⌄</i></button>
+          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>Semester</small><b id="vSem">Choose</b><i>⌄</i></button>
         </div>
       </div>
-      <div id="mine"></div>`;
+      <div id="mine"></div>
+      <section class="about" aria-labelledby="abTitle">
+        <h2 id="abTitle">About our college</h2>
+        <div class="abox">
+          <div class="ahead"><div class="lg">🏛️</div><div><b>${esc(COLLEGE.name)}</b><span>${esc(COLLEGE.place)} · ${esc(COLLEGE.motto)}</span></div></div>
+          ${COLLEGE.lines.map(l => `<div class="arow"><i>${l[0]}</i><span>${esc(l[1])}</span></div>`).join("")}
+        </div>
+      </section>`;
 
         let course = "", sem = "";
         const paint = () => {
-          $("vCourse").textContent = course || "Select course"; $("fCourse").classList.toggle("has", !!course);
-          $("vSem").textContent = sem ? "Semester " + sem : "Select semester"; $("fSem").classList.toggle("has", !!sem);
+          $("vCourse").textContent = course || "Choose"; $("fCourse").classList.toggle("has", !!course);
+          $("vSem").textContent = sem ? "Semester " + sem : "Choose"; $("fSem").classList.toggle("has", !!sem);
           $("fSem").disabled = !course;
         };
         const mineEl = $("mine");
