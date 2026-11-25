@@ -17,6 +17,21 @@ async function loadData() {
   return out;
 }
 
+function mineFor(data, course, sem) {
+  if (!course || !sem) return null;
+  const rc = c => String(c).replace(/\s*\d+(st|nd|rd|th)\s*sem.*$/i, "").trim();
+  const ord = new RegExp(`\\b${sem}(st|nd|rd|th)\\b`, "i");
+  const courses = [...new Set([...data.exams.map(e => e.course), ...data.rooms.map(r => rc(r.class))])].filter(Boolean);
+  return {
+    exams: data.exams.filter(e => e.course === course && String(e.semester) === sem),
+    timetable: data.rooms.filter(r => rc(r.class) === course && ord.test(r.class)),
+    notices: data.notices.filter(n => {
+      const txt = (n.title + " " + n.description).toLowerCase(), named = courses.filter(k => txt.includes(String(k).toLowerCase()));
+      return !named.length || named.includes(course);
+    }),
+  };
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Use POST" });
   try {
@@ -28,16 +43,25 @@ module.exports = async (req, res) => {
     if (!msgs.length || msgs[msgs.length - 1].role !== "user")
       return res.status(400).json({ error: "Send a question." });
 
+    const pr = body.profile && typeof body.profile === "object" ? body.profile : {};
+    const course = typeof pr.course === "string" ? pr.course.replace(/[^\w .+&()-]/g, "").slice(0, 30) : "";
+    const sem = /^\d{1,2}$/.test(String(pr.sem || "")) ? String(pr.sem) : "";
+    const hindi = body.lang === "hi";
     const data = await loadData();
+    const mine = mineFor(data, course, sem);
     const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+    const weekday = new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", weekday: "long" });
+    const nowTime = new Date().toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
     const system =
-      `You are College Assistant, a helpful assistant for college students. Today's date is ${today} (India).\n` +
+      `You are College Assistant, a helpful assistant for college students. Today's date is ${today} (${weekday}), and the time is ${nowTime} in India.\n` +
       `Answer ONLY using the COLLEGE DATA below. If the answer is not in the data, say you don't have that information ` +
       `and suggest contacting the college office or the relevant department. Never invent dates, rooms, phone numbers or rules.\n` +
       `Be warm, friendly and encouraging, like a helpful senior student. Keep answers short (2 to 4 sentences), because your reply will also be read aloud.\n` +
       `Use plain text with no tables or headings. You may use **bold** for key facts such as dates, times and room numbers, and at most one emoji.\n` +
       `Reply in the same language the student used (English or Hindi).\n\n` +
-      `COLLEGE DATA (JSON):\n${JSON.stringify(data)}`;
+      (hindi ? `Unless the student writes in English, reply in Hindi (Devanagari script).\n` : "") +
+      (mine ? `The student is in ${course}, Semester ${sem}. When they say "my" (my exam, my classes, my notices), answer from STUDENT'S CLASS DATA first and do not mention other courses unless asked.\n\nSTUDENT'S CLASS DATA (JSON):\n${JSON.stringify(mine)}\n\n` : "\n") +
+      `ALL COLLEGE DATA (JSON):\n${JSON.stringify(data)}`;
 
     const model = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
