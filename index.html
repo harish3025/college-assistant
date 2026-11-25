@@ -1134,6 +1134,77 @@
       background: #25D366;
       color: #073B1C;
     }
+
+
+
+    .banner {
+      padding: 0;
+      background: #0F1B3D;
+      perspective: 1000px;
+      border-radius: 0 0 34px 34px;
+      box-shadow: 0 20px 40px rgba(15, 27, 61, .35);
+    }
+
+    .b3d {
+      position: relative;
+      min-height: 400px;
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+      transition: transform .18s ease-out;
+    }
+
+    .bphoto {
+      position: absolute;
+      left: -14%;
+      right: -14%;
+      bottom: -5%;
+      height: 66%;
+      background-size: cover;
+      background-position: center 28%;
+      transform: translate3d(var(--px, 0px), calc(var(--py, 0px) + var(--sy, 0px)), 0) scale(1.06);
+      transition: transform .18s ease-out;
+      will-change: transform;
+    }
+
+    .bfade {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      transform: translateZ(2px);
+      background: linear-gradient(180deg, #0F1B3D 0%, #0F1B3D 36%, rgba(15, 27, 61, .72) 46%, rgba(15, 27, 61, .25) 60%, rgba(15, 27, 61, 0) 74%), linear-gradient(0deg, rgba(15, 27, 61, .55), rgba(15, 27, 61, 0) 32%);
+    }
+
+    .banner-in {
+      padding: 20px 18px 0;
+      width: 100%;
+      z-index: 2;
+      transform: translate3d(calc(var(--px, 0px) * -.6), calc(var(--py, 0px) * -.6), 40px);
+      transition: transform .18s ease-out;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
+    }
+
+    .pickhero {
+      margin-top: 24px;
+    }
+
+    @media (min-width:700px) {
+      .b3d {
+        min-height: 540px;
+      }
+
+      .bphoto {
+        height: 76%;
+        background-position: center 6%;
+      }
+
+      .banner h1 {
+        font-size: 40px;
+      }
+
+      .bfade {
+        background: linear-gradient(180deg, #0F1B3D 0%, #0F1B3D 28%, rgba(15, 27, 61, .7) 38%, rgba(15, 27, 61, .2) 52%, rgba(15, 27, 61, 0) 66%), linear-gradient(0deg, rgba(15, 27, 61, .5), rgba(15, 27, 61, 0) 30%);
+      }
+    }
   </style>
 </head>
 
@@ -1350,9 +1421,30 @@
     const SKY = `<svg class="sky" viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#fff" fill-opacity=".13"><rect x="0" y="90" width="400" height="6"/><rect x="150" y="44" width="100" height="48"/><polygon points="140,44 200,22 260,44"/><path d="M186,26 Q200,-2 214,26Z"/><rect x="60" y="58" width="86" height="34"/><rect x="254" y="58" width="86" height="34"/><rect x="26" y="48" width="32" height="44"/><polygon points="22,48 42,30 62,48"/><rect x="342" y="48" width="32" height="44"/><polygon points="338,48 358,30 378,48"/><circle cx="12" cy="80" r="14"/><circle cx="388" cy="80" r="14"/><circle cx="102" cy="84" r="9"/><circle cx="298" cy="84" r="9"/></g><g fill="#fff" fill-opacity=".09"><rect x="160" y="50" width="6" height="42"/><rect x="176" y="50" width="6" height="42"/><rect x="192" y="50" width="6" height="42"/><rect x="208" y="50" width="6" height="42"/><rect x="224" y="50" width="6" height="42"/><rect x="238" y="50" width="6" height="42"/></g></svg>`;
     const heroHTML = () => {
       const h = new Date().getHours(), g = h < 12 ? t("gm") : h < 17 ? t("ga") : t("ge");
-      return `<div class="banner"><div class="banner-in"><small>${g} 👋 · ${t("welcome")}</small><h1>${esc(L(COLLEGE.name))}</h1>
-    <p>${esc(L(COLLEGE.place))}</p><p class="mot">“${esc(COLLEGE.motto)}”</p></div>${SKY}</div>`;
+      return `<div class="banner"><div class="b3d"><div class="bphoto" style="background-image:url(campus.jpg)"></div><div class="bfade"></div>
+    <div class="banner-in"><small>${g} 👋 · ${t("welcome")}</small><h1>${esc(L(COLLEGE.name))}</h1>
+    <p>${esc(L(COLLEGE.place))}</p><p class="mot">“${esc(COLLEGE.motto)}”</p></div></div></div>`;
     };
+
+    /* 3D depth: the photo and the text move at different speeds with pointer, phone tilt and scroll */
+    let d3Ready = false;
+    function init3D() {
+      const b = document.querySelector(".banner"), el = document.querySelector(".b3d");
+      if (!b || !el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      let raf = 0;
+      const set = (nx, ny) => {
+        cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
+          const e2 = document.querySelector(".b3d"); if (!e2) return;
+          e2.style.setProperty("--ry", (nx * 3).toFixed(2) + "deg"); e2.style.setProperty("--rx", (-ny * 2.5).toFixed(2) + "deg");
+          e2.style.setProperty("--px", (nx * -14).toFixed(1) + "px"); e2.style.setProperty("--py", (ny * -8).toFixed(1) + "px");
+        });
+      };
+      b.addEventListener("pointermove", e => {const r = b.getBoundingClientRect(); set(((e.clientX - r.left) / r.width - .5) * 2, ((e.clientY - r.top) / r.height - .5) * 2);});
+      b.addEventListener("pointerleave", () => set(0, 0));
+      if (d3Ready) return; d3Ready = true;
+      addEventListener("deviceorientation", e => {if (e.gamma == null) return; set(Math.max(-1, Math.min(1, e.gamma / 25)), Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 25)));}, {passive: true});
+      addEventListener("scroll", () => {const e2 = document.querySelector(".b3d"); if (e2) e2.style.setProperty("--sy", Math.min(scrollY * .25, 70) + "px");}, {passive: true});
+    }
 
     const pages = {
       async home() {
@@ -1497,7 +1589,7 @@
     async function route() {
       const p = (location.hash || "#home").slice(1), page = pages[p] ? p : "home";
       document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === page));
-      $("hero").innerHTML = page === "home" ? heroHTML() : "";
+      $("hero").innerHTML = page === "home" ? heroHTML() : ""; if (page === "home") init3D();
       app.innerHTML = `<div class="sk" style="height:44px;width:60%"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
       offline = false;
       try {
