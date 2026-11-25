@@ -1205,6 +1205,56 @@
         background: linear-gradient(180deg, #0F1B3D 0%, #0F1B3D 28%, rgba(15, 27, 61, .7) 38%, rgba(15, 27, 61, .2) 52%, rgba(15, 27, 61, 0) 66%), linear-gradient(0deg, rgba(15, 27, 61, .5), rgba(15, 27, 61, 0) 30%);
       }
     }
+
+    .field b {
+      white-space: normal;
+      line-height: 1.2;
+      font-size: 15px;
+    }
+
+    .field:not(.has) b {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .b3d {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 340px;
+    }
+
+    .bphoto {
+      top: -3%;
+      bottom: -3%;
+      height: auto;
+      left: -6%;
+      right: -6%;
+      background-position: center 38%;
+    }
+
+    .bfade {
+      background: linear-gradient(180deg, rgba(15, 27, 61, .30) 0%, rgba(15, 27, 61, 0) 26%, rgba(15, 27, 61, .50) 60%, rgba(15, 27, 61, .93) 100%);
+    }
+
+    .banner-in {
+      padding: 0 18px 24px;
+    }
+
+    @media (min-width:700px) {
+      .b3d {
+        min-height: 520px;
+      }
+
+      .bphoto {
+        height: auto;
+        background-position: center 30%;
+      }
+
+      .bfade {
+        background: linear-gradient(180deg, rgba(15, 27, 61, .30) 0%, rgba(15, 27, 61, 0) 26%, rgba(15, 27, 61, .45) 62%, rgba(15, 27, 61, .92) 100%);
+      }
+    }
   </style>
 </head>
 
@@ -1264,8 +1314,8 @@
       en: {
         home: "Home", notices: "Notices", exams: "Exams", rooms: "Rooms", offices: "Offices", faq: "FAQ", gm: "Good morning", ga: "Good afternoon", ge: "Good evening", welcome: "Welcome to",
         subPick: "Choose your course to see your timetable, exams and notices.", pickClass: "Pick your class", course: "Course", semester: "Semester", choose: "Choose",
-        chooseCourse: "Choose your course", chooseSem: "Choose your semester", semN: "Semester {0}", semShort: "Sem {0}", nothing: "Nothing to choose yet.",
-        emptyTitle1: "Pick your course and semester", emptyTitle2: "Now choose your semester", emptyBody: "Your timetable, exam dates and notices will appear right here.",
+        chooseCourse: "Choose your course", chooseSem: "Choose your year and semester", year: "Year / Semester", selectCourse: "Select your course", selectYear: "Select your year", yearSem: "Year {0} · Semester {1}", resume: "Continue with {0} · {1}", semN: "Semester {0}", semShort: "Sem {0}", nothing: "Nothing to choose yet.",
+        emptyTitle1: "Select your course and year", emptyTitle2: "Now select your year", emptyBody: "Your timetable, exam dates and notices will appear right here.",
         todayClasses: "Today's classes", nextClassIn: "Next class in {0}", classNow: "Class in progress", noMore: "No more classes today", noToday: "No classes today", nextOn: "Next: {0}, {1} · {2}",
         stDone: "Done", stNow: "Now", stNext: "Next", stLater: "Later", min: "{0} min", hr: "{0} h {1} min",
         nextExam: "Your next exam", noExams: "No upcoming exams", noExamsSub: "New dates for {0} Sem {1} will show up here.",
@@ -1281,8 +1331,8 @@
       hi: {
         home: "होम", notices: "सूचनाएँ", exams: "परीक्षा", rooms: "कक्षाएँ", offices: "कार्यालय", faq: "प्रश्न", gm: "सुप्रभात", ga: "नमस्कार", ge: "शुभ संध्या", welcome: "आपका स्वागत है",
         subPick: "अपनी समय-सारणी, परीक्षा और सूचनाएँ देखने के लिए कोर्स चुनें।", pickClass: "अपनी कक्षा चुनें", course: "कोर्स", semester: "सेमेस्टर", choose: "चुनें",
-        chooseCourse: "अपना कोर्स चुनें", chooseSem: "अपना सेमेस्टर चुनें", semN: "सेमेस्टर {0}", semShort: "सेम {0}", nothing: "अभी चुनने के लिए कुछ नहीं है।",
-        emptyTitle1: "अपना कोर्स और सेमेस्टर चुनें", emptyTitle2: "अब अपना सेमेस्टर चुनें", emptyBody: "आपकी समय-सारणी, परीक्षा तिथियाँ और सूचनाएँ यहीं दिखेंगी।",
+        chooseCourse: "अपना कोर्स चुनें", chooseSem: "अपना वर्ष और सेमेस्टर चुनें", year: "वर्ष / सेमेस्टर", selectCourse: "अपना कोर्स चुनें", selectYear: "अपना वर्ष चुनें", yearSem: "वर्ष {0} · सेमेस्टर {1}", resume: "{0} · {1} के साथ जारी रखें", semN: "सेमेस्टर {0}", semShort: "सेम {0}", nothing: "अभी चुनने के लिए कुछ नहीं है।",
+        emptyTitle1: "अपना कोर्स और वर्ष चुनें", emptyTitle2: "अब अपना वर्ष चुनें", emptyBody: "आपकी समय-सारणी, परीक्षा तिथियाँ और सूचनाएँ यहीं दिखेंगी।",
         todayClasses: "आज की कक्षाएँ", nextClassIn: "अगली कक्षा {0} में", classNow: "कक्षा चल रही है", noMore: "आज और कक्षाएँ नहीं हैं", noToday: "आज कोई कक्षा नहीं", nextOn: "अगली: {0}, {1} · {2}",
         stDone: "समाप्त", stNow: "अभी", stNext: "अगली", stLater: "बाद में", min: "{0} मिनट", hr: "{0} घंटा {1} मिनट",
         nextExam: "आपकी अगली परीक्षा", noExams: "कोई आने वाली परीक्षा नहीं", noExamsSub: "{0} सेम {1} की नई तिथियाँ यहाँ दिखेंगी।",
@@ -1418,6 +1468,7 @@
       return `<div class="sec" style="margin-top:20px"><h2>${t("todayClasses")} · ${esc(dayName(dayOf(0)))}</h2></div><div class="nextbar">${msg}</div>${rows ? `<div class="list">${rows}</div>` : ""}`;
     }
 
+    let PICK = {course: "", sem: ""};   // kept while the app is open (language switch, other pages)
     const SKY = `<svg class="sky" viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#fff" fill-opacity=".13"><rect x="0" y="90" width="400" height="6"/><rect x="150" y="44" width="100" height="48"/><polygon points="140,44 200,22 260,44"/><path d="M186,26 Q200,-2 214,26Z"/><rect x="60" y="58" width="86" height="34"/><rect x="254" y="58" width="86" height="34"/><rect x="26" y="48" width="32" height="44"/><polygon points="22,48 42,30 62,48"/><rect x="342" y="48" width="32" height="44"/><polygon points="338,48 358,30 378,48"/><circle cx="12" cy="80" r="14"/><circle cx="388" cy="80" r="14"/><circle cx="102" cy="84" r="9"/><circle cx="298" cy="84" r="9"/></g><g fill="#fff" fill-opacity=".09"><rect x="160" y="50" width="6" height="42"/><rect x="176" y="50" width="6" height="42"/><rect x="192" y="50" width="6" height="42"/><rect x="208" y="50" width="6" height="42"/><rect x="224" y="50" width="6" height="42"/><rect x="238" y="50" width="6" height="42"/></g></svg>`;
     const heroHTML = () => {
       const h = new Date().getHours(), g = h < 12 ? t("gm") : h < 17 ? t("ga") : t("ge");
@@ -1469,8 +1520,8 @@
       <div class="pickhero">
         <div class="pk-title">${t("pickClass")}</div><p class="pk-sub">${t("subPick")}</p>
         <div class="pk-grid">
-          <button class="field" id="fCourse" aria-haspopup="dialog"><small>${t("course")}</small><b id="vCourse">${t("choose")}</b><i>⌄</i></button>
-          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>${t("semester")}</small><b id="vSem">${t("choose")}</b><i>⌄</i></button>
+          <button class="field" id="fCourse" aria-haspopup="dialog"><small>${t("course")}</small><b id="vCourse">${t("selectCourse")}</b><i>⌄</i></button>
+          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>${t("year")}</small><b id="vSem">${t("selectYear")}</b><i>⌄</i></button>
         </div>
       </div>
       <div id="mine"></div>
@@ -1482,18 +1533,20 @@
         </div>
       </section>`;
 
-        let course = "", sem = "";
+        let course = courses.includes(PICK.course) ? PICK.course : "", sem = course && semsFor(course).map(String).includes(String(PICK.sem)) ? String(PICK.sem) : "";
         const paint = () => {
-          $("vCourse").textContent = course || t("choose"); $("fCourse").classList.toggle("has", !!course);
-          $("vSem").textContent = sem ? t("semN", sem) : t("choose"); $("fSem").classList.toggle("has", !!sem);
+          $("vCourse").textContent = course || t("selectCourse"); $("fCourse").classList.toggle("has", !!course);
+          $("vSem").textContent = sem ? t("yearSem", Math.ceil(sem / 2), sem) : t("selectYear"); $("fSem").classList.toggle("has", !!sem);
           $("fSem").disabled = !course;
         };
         const mineEl = $("mine");
         const render = () => {
-          const c = course, sm = sem;
+          const c = course, sm = sem; PICK = {course: c, sem: sm};
           try {localStorage.setItem("ca_pick", JSON.stringify({course: c, sem: sm}));} catch (err) { }
           if (!c || !sm) {
-            mineEl.innerHTML = `<div class="ticket empty" style="margin-top:18px"><b>${c ? t("emptyTitle2") : t("emptyTitle1")}</b><p class="sub" style="margin:4px 0 0">${t("emptyBody")}</p></div>`;
+            mineEl.innerHTML = `<div class="ticket empty" style="margin-top:18px"><b>${c ? t("emptyTitle2") : t("emptyTitle1")}</b><p class="sub" style="margin:4px 0 0">${t("emptyBody")}</p>
+          ${resume && !c ? `<button class="mini" id="resume" style="margin-top:12px">↩ ${t("resume", esc(resume.course), esc(t("yearSem", Math.ceil(resume.sem / 2), resume.sem)))}</button>` : ""}</div>`;
+            const rb = $("resume"); if (rb) rb.onclick = () => {course = resume.course; sem = String(resume.sem); paint(); render();};
             return;
           }
           const myExams = e.filter(x => x.course === c && String(x.semester) === sm).sort((a, b) => a.date.localeCompare(b.date));
@@ -1521,12 +1574,9 @@
           course = v; paint(); render();
           if (!sem) setTimeout(() => $("fSem").click(), 280);
         });
-        $("fSem").onclick = () => openSheet(t("chooseSem"), semsFor(course).map(x => ({value: String(x), label: t("semN", x), badge: String(x)})), sem, v => {sem = v; paint(); render();});
+        $("fSem").onclick = () => openSheet(t("chooseSem"), semsFor(course).map(x => ({value: String(x), label: t("yearSem", Math.ceil(x / 2), x), badge: "Y" + Math.ceil(x / 2)})), sem, v => {sem = v; paint(); render();});
         let saved = {}; try {saved = JSON.parse(localStorage.getItem("ca_pick") || "{}");} catch (err) { }
-        if (saved.course && courses.includes(saved.course)) {
-          course = saved.course;
-          if (saved.sem && semsFor(course).map(String).includes(String(saved.sem))) sem = String(saved.sem);
-        }
+        const resume = saved.course && saved.sem && courses.includes(saved.course) && semsFor(saved.course).map(String).includes(String(saved.sem)) ? saved : null;
         paint(); render();
       },
 
