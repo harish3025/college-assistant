@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ask College Assistant</title>
-<meta name="theme-color" content="#4f46e5">
+<meta name="theme-color" content="#0F1B3D">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <style>
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -13,7 +15,7 @@
          background: radial-gradient(1200px 500px at 10% -10%, #e0e7ff 0%, transparent 60%),
                      radial-gradient(900px 500px at 100% 0%, #cffafe 0%, transparent 55%), #f8fafc; }
   button, input { font: inherit; border: 0; cursor: pointer; }
-  .hero { background: linear-gradient(120deg, #4f46e5, #2563eb 55%, #06b6d4); color: #fff; display: flex; align-items: center;
+  .hero { background: radial-gradient(420px 160px at 95% -20%, rgba(255,183,3,.5), transparent 60%), linear-gradient(160deg,#0F1B3D 0%,#1D3BB8 65%,#2B50F5 100%); color: #fff; display: flex; align-items: center;
           gap: 10px; padding: 12px 14px; padding-top: max(12px, env(safe-area-inset-top)); }
   .hero h1 { margin: 0; font-size: 17px; line-height: 1.2; }
   .grow { flex: 1; min-width: 0; }
@@ -51,6 +53,8 @@
   #send:disabled { opacity: .5; }
   .mic.listening { background: #fb7185; color: #fff; animation: pulse 1s infinite; }
   @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(251,113,133,.3) } }
+  .who { width:calc(100% - 32px); max-width:728px; margin:12px auto 0; padding:9px 14px; font-size:13px; color:#3730A3; background:#E8EDFF; border-radius:14px; }
+  .who a { color:#2B50F5; font-weight:700; }
   .note { text-align: center; font-size: 11px; color: #94a3b8; margin: 8px 0 0; }
 </style>
 </head>
@@ -66,6 +70,7 @@
   <button id="lang" class="hbtn" title="Microphone language">EN</button>
   <a href="index.html" class="hbtn">Home</a>
 </header>
+<div id="who" class="who"></div>
 
 <main id="chat" aria-live="polite"></main>
 <div id="chips"></div>
@@ -84,6 +89,7 @@ const $ = id => document.getElementById(id);
 const chat = $("chat"), q = $("q"), send = $("send"), avatar = $("avatar"), statusEl = $("status");
 const history = [];
 let busy = false, soundOn = true, micLang = "en-IN", voices = [];
+let LANG = "en"; try { LANG = localStorage.getItem("ca_lang") === "hi" ? "hi" : "en"; } catch (e) {}
 try { soundOn = localStorage.getItem("ca_sound") !== "off"; } catch (e) {}
 
 /* ---------- text helpers ---------- */
@@ -158,49 +164,45 @@ async function ask(text) {
   bubble(text, "user");
   history.push({ role: "user", text });
   const wait = bubble(typingHTML, "bot");
-  statusEl.lastElementChild.textContent = " Typing...";
+  statusEl.lastElementChild.textContent = tx("typing");
   try {
     const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history }) });
+      body: JSON.stringify({ messages: history, profile: profile(), lang: LANG }) });
     const j = await r.json();
-    const reply = j.reply || "Sorry, something went wrong. Please try again in a moment.";
+    const reply = j.reply || tx("fail");
     wait.b.innerHTML = fmt(reply);
     history.push({ role: "model", text: reply });
     addReplay(wait, reply); speak(reply);
   } catch (e) {
-    wait.b.textContent = "I couldn't reach the server. Please check your internet and try again.";
+    wait.b.textContent = tx("err");
     history.pop();
   }
-  statusEl.lastElementChild.textContent = " Online · ask me anything";
+  statusEl.lastElementChild.textContent = tx("online");
   busy = false; send.disabled = false; chat.scrollTop = chat.scrollHeight;
 }
 
 /* ---------- microphone (Chrome / Edge) ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
-if (!SR) { $("mic").style.display = "none"; $("lang").style.display = "none"; }
+if (!SR) { $("mic").style.display = "none"; }
 else {
   $("mic").onclick = () => {
     if (rec) { rec.stop(); return; }
     stopSpeaking();
     rec = new SR(); rec.lang = micLang; rec.interimResults = true; rec.maxAlternatives = 1;
     let finalText = "";
-    rec.onstart = () => { $("mic").classList.add("listening"); avatar.classList.add("listening"); q.placeholder = "Listening..."; };
+    rec.onstart = () => { $("mic").classList.add("listening"); avatar.classList.add("listening"); q.placeholder = tx("mic"); };
     rec.onresult = e => {
       let t = ""; for (const r of e.results) { t += r[0].transcript; if (r.isFinal) finalText = t; }
       q.value = t;
     };
-    rec.onerror = e => { q.placeholder = e.error === "not-allowed" ? "Allow microphone access in your browser" : "Couldn't hear you, try again"; };
+    rec.onerror = e => { q.placeholder = e.error === "not-allowed" ? tx("micDenied") : tx("micFail"); };
     rec.onend = () => {
       $("mic").classList.remove("listening"); avatar.classList.remove("listening"); rec = null;
-      if (q.placeholder === "Listening...") q.placeholder = "Type or tap the mic to ask...";
+      if (q.placeholder === tx("mic")) q.placeholder = tx("ph");
       if (finalText || q.value.trim()) ask(q.value);
     };
     try { rec.start(); } catch (e) { rec = null; }
-  };
-  $("lang").onclick = () => {
-    micLang = micLang === "en-IN" ? "hi-IN" : "en-IN";
-    $("lang").textContent = micLang === "en-IN" ? "EN" : "हिं";
   };
 }
 
@@ -212,13 +214,52 @@ $("snd").onclick = () => {
 };
 paintSound();
 
-/* ---------- start ---------- */
-const hello = "Hi! 👋 I'm your College Assistant. Ask me about exam dates, notices, classrooms or departments. You can type, or tap the 🎤 and just speak.";
-addReplay(bubble(fmt(hello), "bot"), hello);
-["When is my BCA 3rd sem exam?", "Where is the Examination Cell?", "What documents are needed for admission?", "Any new notices?", "Library timings?"].forEach(s => {
-  const b = document.createElement("button"); b.className = "chip"; b.textContent = s; b.onclick = () => ask(s);
-  $("chips").appendChild(b);
-});
+/* ---------- language + personalised start ---------- */
+const TX = {
+  en: { title:"College Assistant", online:" Online · ask me anything", typing:" Typing...", ph:"Type or tap the mic to ask...", home:"Home", sem:"Semester {0}", change:"Change",
+    note:"AI can make mistakes. For important matters, confirm with the college office.",
+    hello:"Hi! 👋 I'm your College Assistant. Ask me about exam dates, notices, classrooms or departments. You can type, or tap the 🎤 and just speak.",
+    helloMine:"Hi! 👋 I know you're in {0}, {1}. Ask me about your classes, exams or notices. You can type, or tap the 🎤 and just speak.",
+    err:"I couldn't reach the server. Please check your internet and try again.", fail:"Sorry, something went wrong. Please try again in a moment.",
+    mic:"Listening...", micDenied:"Allow microphone access in your browser", micFail:"Couldn't hear you, try again",
+    who:"Answering for {0} · {1}", noWho:"Choose your class on Home to get answers for your course",
+    chipsMine:["What is my next exam?","What classes do I have today?","Any notices for me?","Where is the Examination Cell?"],
+    chipsGen:["When is my BCA 3rd sem exam?","Where is the Examination Cell?","What documents are needed for admission?","Any new notices?","Library timings?"] },
+  hi: { title:"कॉलेज असिस्टेंट", online:" ऑनलाइन · कुछ भी पूछें", typing:" टाइप कर रहा है...", ph:"टाइप करें या 🎤 दबाकर बोलें...", home:"होम", sem:"सेमेस्टर {0}", change:"बदलें",
+    note:"AI गलती कर सकता है। ज़रूरी बातों के लिए कॉलेज कार्यालय से पुष्टि करें।",
+    hello:"नमस्ते! 👋 मैं आपका कॉलेज असिस्टेंट हूँ। परीक्षा तिथियाँ, सूचनाएँ, कक्षाएँ या विभाग के बारे में पूछें। आप टाइप कर सकते हैं या 🎤 दबाकर बोल सकते हैं।",
+    helloMine:"नमस्ते! 👋 मुझे पता है कि आप {0}, {1} में हैं। अपनी कक्षाओं, परीक्षाओं या सूचनाओं के बारे में पूछें। आप टाइप कर सकते हैं या 🎤 दबाकर बोल सकते हैं।",
+    err:"सर्वर से संपर्क नहीं हो पाया। कृपया इंटरनेट जाँचकर फिर कोशिश करें।", fail:"क्षमा करें, कुछ गड़बड़ हो गई। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+    mic:"सुन रहा हूँ...", micDenied:"ब्राउज़र में माइक्रोफ़ोन की अनुमति दें", micFail:"आपकी आवाज़ सुनाई नहीं दी, फिर कोशिश करें",
+    who:"{0} · {1} के लिए उत्तर", noWho:"अपने कोर्स के उत्तरों के लिए होम पर कक्षा चुनें",
+    chipsMine:["मेरी अगली परीक्षा कब है?","आज मेरी कौन सी कक्षाएँ हैं?","क्या मेरे लिए कोई सूचना है?","परीक्षा प्रकोष्ठ कहाँ है?"],
+    chipsGen:["मेरी BCA तीसरे सेमेस्टर की परीक्षा कब है?","परीक्षा प्रकोष्ठ कहाँ है?","प्रवेश के लिए कौन से दस्तावेज़ चाहिए?","कोई नई सूचना?","पुस्तकालय का समय क्या है?"] }
+};
+const tx = k => TX[LANG][k];
+function profile() { try { const p = JSON.parse(localStorage.getItem("ca_pick") || "{}"); return p.course && p.sem ? { course: String(p.course), sem: String(p.sem) } : null; } catch (e) { return null; } }
+const semTxt = n => tx("sem").replace("{0}", n);
+
+function renderStatic() {
+  document.documentElement.lang = LANG; micLang = LANG === "hi" ? "hi-IN" : "en-IN";
+  document.querySelector("h1").textContent = tx("title"); statusEl.lastElementChild.textContent = tx("online");
+  q.placeholder = tx("ph"); document.querySelector(".note").textContent = tx("note");
+  document.querySelector('a.hbtn[href="index.html"]').textContent = tx("home"); $("lang").textContent = LANG === "en" ? "हिं" : "EN";
+  const p = profile();
+  $("who").innerHTML = p ? `🎓 ${esc(tx("who").replace("{0}", p.course).replace("{1}", semTxt(p.sem)))} · <a href="index.html">${tx("change")}</a>`
+                         : `💡 ${esc(tx("noWho"))} · <a href="index.html">${tx("home")}</a>`;
+}
+function startChat() {
+  chat.innerHTML = ""; $("chips").innerHTML = "";
+  const p = profile();
+  const hello = p ? tx("helloMine").replace("{0}", p.course).replace("{1}", semTxt(p.sem)) : tx("hello");
+  addReplay(bubble(fmt(hello), "bot"), hello);
+  (p ? tx("chipsMine") : tx("chipsGen")).forEach(sg => {
+    const b = document.createElement("button"); b.className = "chip"; b.textContent = sg; b.onclick = () => ask(sg);
+    $("chips").appendChild(b);
+  });
+}
+$("lang").onclick = () => { LANG = LANG === "en" ? "hi" : "en"; try { localStorage.setItem("ca_lang", LANG); } catch (e) {} stopSpeaking(); renderStatic(); if (!history.length) startChat(); };
+renderStatic(); startChat();
 send.onclick = () => ask(q.value);
 q.addEventListener("keydown", e => { if (e.key === "Enter") ask(q.value); });
 </script>
