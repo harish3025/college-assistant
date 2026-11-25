@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>College Assistant</title>
   <meta name="theme-color" content="#0F1B3D">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="College">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <style>
@@ -637,6 +642,10 @@
       padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
     }
 
+    nav a em {
+      font-style: normal;
+    }
+
     nav a {
       flex: 1;
       text-align: center;
@@ -978,26 +987,175 @@
       text-align: center;
       font-size: 17px;
     }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    :root {
+      --dot: rgba(43, 80, 245, .10);
+    }
+
+    [data-theme="dark"] {
+      --dot: rgba(255, 255, 255, .05);
+    }
+
+    body {
+      background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+      background-size: 22px 22px;
+    }
+
+    .ibtn {
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--sun);
+      color: #0F1B3D;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    .banner {
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+      border-radius: 0 0 34px 34px;
+      padding: 18px 18px 80px;
+      background: radial-gradient(520px 240px at 90% -10%, rgba(255, 183, 3, .55), transparent 60%), linear-gradient(160deg, #0F1B3D 0%, #1D3BB8 62%, #2B50F5 100%);
+    }
+
+    .banner-in {
+      max-width: 720px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .banner small {
+      opacity: .9;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .banner h1 {
+      font-size: 31px;
+      line-height: 1.08;
+      font-weight: 800;
+      margin: 6px 0 6px;
+    }
+
+    .banner p {
+      margin: 0;
+      opacity: .92;
+      font-size: 14.5px;
+    }
+
+    .banner .mot {
+      color: var(--sun);
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .banner .sky {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 96px;
+    }
+
+    .pickhero {
+      margin-top: -40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .pk-sub {
+      margin: -6px 0 12px;
+      font-size: 13.5px;
+      opacity: .9;
+      position: relative;
+    }
+
+    .nextbar {
+      background: var(--soft);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 700;
+      margin: 0 0 10px;
+    }
+
+    .tag.st-now {
+      background: var(--mint);
+      color: #fff;
+    }
+
+    .tag.st-next {
+      background: var(--sun);
+      color: #0F1B3D;
+    }
+
+    .tag.st-later {
+      background: var(--soft);
+      color: var(--ink);
+    }
+
+    .tag.st-done {
+      background: var(--line);
+      color: var(--muted);
+    }
+
+    .item.dim {
+      opacity: .55;
+    }
+
+    .acts2 {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mini {
+      border-radius: 10px;
+      padding: 5px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--soft);
+      color: var(--ink);
+      border: 0;
+      cursor: pointer;
+    }
+
+    .mini.wa {
+      background: #25D366;
+      color: #073B1C;
+    }
   </style>
 </head>
 
 <body>
   <div class="top">
-    <div class="logo">🎓</div><b>College Assistant</b><button id="theme" class="icon-btn"
-      aria-label="Switch light or dark mode">🌙</button>
+    <div class="logo">🎓</div><b>College Assistant</b>
+    <button id="install" class="ibtn" hidden>⬇ <span data-k="install">Install</span></button>
+    <button id="lang" class="icon-btn" aria-label="Language">हिं</button>
+    <button id="theme" class="icon-btn" aria-label="Switch light or dark mode">🌙</button>
   </div>
+  <div id="hero"></div>
   <main id="app"></main>
-  <a class="fab" href="chat.html" aria-label="Ask the AI assistant"><span class="sp">✨</span>Ask
-    AI<small>NEW</small></a>
+  <a class="fab" href="chat.html" aria-label="Ask the AI assistant"><span class="sp">✨</span><b data-k="askAI">Ask
+      AI</b><small data-k="newTag">NEW</small></a>
   <nav>
-    <a href="#home" data-p="home"><span>🏠</span>Home</a>
-    <a href="#notices" data-p="notices"><span>📢</span>Notices</a>
-    <a href="#exams" data-p="exams"><span>📝</span>Exams</a>
-    <a href="#rooms" data-p="rooms"><span>🏫</span>Rooms</a>
-    <a href="#departments" data-p="departments"><span>☎️</span>Offices</a>
-    <a href="#faqs" data-p="faqs"><span>❓</span>FAQ</a>
+    <a href="#home" data-p="home"><span>🏠</span><em data-k="home">Home</em></a>
+    <a href="#notices" data-p="notices"><span>📢</span><em data-k="notices">Notices</em></a>
+    <a href="#exams" data-p="exams"><span>📝</span><em data-k="exams">Exams</em></a>
+    <a href="#rooms" data-p="rooms"><span>🏫</span><em data-k="rooms">Rooms</em></a>
+    <a href="#departments" data-p="departments"><span>☎️</span><em data-k="offices">Offices</em></a>
+    <a href="#faqs" data-p="faqs"><span>❓</span><em data-k="faq">FAQ</em></a>
   </nav>
-
   <div id="sheet" class="sheet">
     <div class="sh-bg"></div>
     <div class="sh-panel" role="dialog" aria-modal="true" aria-labelledby="shTitle">
@@ -1006,67 +1164,109 @@
       <div id="shList"></div>
     </div>
   </div>
-
+  <script src="config.js"></script>
   <script>
-    // ====== PASTE YOUR SUPABASE DETAILS HERE ======
+    // ====== SUPABASE (put your key once in config.js, or paste it here) ======
     const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_xInsvmdM6kVMcQOa234ciA_rzhl8wTU"; // starts with sb_publishable_
-    // ==============================================
+    const SUPABASE_KEY = window.CA_KEY || "sb_publishable_xInsvmdM6kVMcQOa234ciA_rzhl8wTU"; // starts with sb_publishable_
+    // =========================================================================
 
-    // ====== EDIT YOUR COLLEGE DETAILS HERE (shown in "About our college" on the home page) ======
+    // ====== EDIT YOUR COLLEGE DETAILS HERE (shown in the banner and "About our college") ======
     const COLLEGE = {
-      name: "Sanskriti University",
-      place: "Mathura, Uttar Pradesh",
+      name: {en: "Sanskriti University", hi: "संस्कृति विश्वविद्यालय"},
+      place: {en: "Mathura, Uttar Pradesh", hi: "मथुरा, उत्तर प्रदेश"},
       motto: "For Excellence in Life",
       lines: [
-        ["🏛️", "A private university in Mathura, Uttar Pradesh, established in 2016."],
-        ["✅", "Recognised by the UGC and a member of the Association of Indian Universities."],
-        ["🌳", "A green campus of more than 40 acres at Chhata, on the Mathura–Delhi Highway (NH-19)."],
-        ["🎓", "Undergraduate, postgraduate and doctoral programmes, including B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA and PhD."],
-        ["📚", "A library, computer labs, a seminar hall and a centre of excellence in robotics and automation."],
-        ["💡", "Its motto is “For Excellence in Life”."],
-        ["📱", "This app brings notices, exam dates, timetables and office contacts together in one place."],
-        ["📞", "For anything not shown here, visit the Examination Cell or Admission Cell, or ask the AI assistant."]
+        ["🏛️", {en: "A private university in Mathura, Uttar Pradesh, established in 2016.", hi: "मथुरा, उत्तर प्रदेश में स्थित एक निजी विश्वविद्यालय, जिसकी स्थापना 2016 में हुई।"}],
+        ["✅", {en: "Recognised by the UGC and a member of the Association of Indian Universities.", hi: "यूजीसी (UGC) से मान्यता प्राप्त और एसोसिएशन ऑफ इंडियन यूनिवर्सिटीज़ का सदस्य।"}],
+        ["🌳", {en: "A green campus of more than 40 acres at Chhata, on the Mathura–Delhi Highway (NH-19).", hi: "मथुरा–दिल्ली हाईवे (NH-19) पर छाता में 40 एकड़ से अधिक में फैला हरा-भरा परिसर।"}],
+        ["🎓", {en: "Undergraduate, postgraduate and doctoral programmes, including B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA and PhD.", hi: "स्नातक, स्नातकोत्तर और डॉक्टरेट कार्यक्रम, जिनमें B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA और PhD शामिल हैं।"}],
+        ["📚", {en: "A library, computer labs, a seminar hall and a centre of excellence in robotics and automation.", hi: "पुस्तकालय, कंप्यूटर लैब, सेमिनार हॉल और रोबोटिक्स व ऑटोमेशन का उत्कृष्टता केंद्र।"}],
+        ["💡", {en: "Its motto is “For Excellence in Life”.", hi: "इसका आदर्श वाक्य है “For Excellence in Life”।"}],
+        ["📱", {en: "This app brings notices, exam dates, timetables and office contacts together in one place.", hi: "यह ऐप सूचनाएँ, परीक्षा तिथियाँ, समय-सारणी और कार्यालय संपर्क एक ही जगह उपलब्ध कराता है।"}],
+        ["📞", {en: "For anything not shown here, visit the Examination Cell or Admission Cell, or ask the AI assistant.", hi: "यहाँ न मिलने वाली जानकारी के लिए परीक्षा प्रकोष्ठ या प्रवेश प्रकोष्ठ जाएँ, या AI सहायक से पूछें।"}]
       ]
     };
-    // ===========================================================================================
+    // ==========================================================================================
+
+    const I18N = {
+      en: {
+        home: "Home", notices: "Notices", exams: "Exams", rooms: "Rooms", offices: "Offices", faq: "FAQ", gm: "Good morning", ga: "Good afternoon", ge: "Good evening", welcome: "Welcome to",
+        subPick: "Choose your course to see your timetable, exams and notices.", pickClass: "Pick your class", course: "Course", semester: "Semester", choose: "Choose",
+        chooseCourse: "Choose your course", chooseSem: "Choose your semester", semN: "Semester {0}", semShort: "Sem {0}", nothing: "Nothing to choose yet.",
+        emptyTitle1: "Pick your course and semester", emptyTitle2: "Now choose your semester", emptyBody: "Your timetable, exam dates and notices will appear right here.",
+        todayClasses: "Today's classes", nextClassIn: "Next class in {0}", classNow: "Class in progress", noMore: "No more classes today", noToday: "No classes today", nextOn: "Next: {0}, {1} · {2}",
+        stDone: "Done", stNow: "Now", stNext: "Next", stLater: "Later", min: "{0} min", hr: "{0} h {1} min",
+        nextExam: "Your next exam", noExams: "No upcoming exams", noExamsSub: "New dates for {0} Sem {1} will show up here.",
+        timetable: "Class timetable", examDates: "Exam dates", noticesForYou: "Notices for you", seeAll: "See all", noClasses: "No classes added yet for this semester.", noExamsYet: "No exams added yet for this semester.", noNotices: "No notices right now.",
+        relDone: "Done", relToday: "Today", relTomorrow: "Tomorrow", relIn: "In {0} days", about: "About our college",
+        noticesTitle: "Notices", latestFirst: "Latest first", all: "All", noNoticesFound: "No notices found.",
+        examSchedule: "Exam schedule", pickCS: "Pick your course and semester", allCourses: "All courses", allSems: "All semesters", noExamsFound: "No exams found.",
+        findRoom: "Find my classroom", pickClassDay: "Choose your class and day", allClasses: "All classes", allDays: "All days", noClassesFound: "No classes found.",
+        officesTitle: "Offices and departments", officesSub: "Where to go and when", call: "Call", email: "Email", quick: "Quick answers", tapQ: "Tap a question",
+        share: "Share", addCal: "Add to calendar", openPdf: "Open PDF", newTag: "NEW", askAI: "Ask AI", loadErr: "Could not load data", checkNet: "Check your internet connection and try again.",
+        offlineNote: "Showing saved data (offline)", install: "Install", iosTip: "To install: tap Share, then “Add to Home Screen”."
+      },
+      hi: {
+        home: "होम", notices: "सूचनाएँ", exams: "परीक्षा", rooms: "कक्षाएँ", offices: "कार्यालय", faq: "प्रश्न", gm: "सुप्रभात", ga: "नमस्कार", ge: "शुभ संध्या", welcome: "आपका स्वागत है",
+        subPick: "अपनी समय-सारणी, परीक्षा और सूचनाएँ देखने के लिए कोर्स चुनें।", pickClass: "अपनी कक्षा चुनें", course: "कोर्स", semester: "सेमेस्टर", choose: "चुनें",
+        chooseCourse: "अपना कोर्स चुनें", chooseSem: "अपना सेमेस्टर चुनें", semN: "सेमेस्टर {0}", semShort: "सेम {0}", nothing: "अभी चुनने के लिए कुछ नहीं है।",
+        emptyTitle1: "अपना कोर्स और सेमेस्टर चुनें", emptyTitle2: "अब अपना सेमेस्टर चुनें", emptyBody: "आपकी समय-सारणी, परीक्षा तिथियाँ और सूचनाएँ यहीं दिखेंगी।",
+        todayClasses: "आज की कक्षाएँ", nextClassIn: "अगली कक्षा {0} में", classNow: "कक्षा चल रही है", noMore: "आज और कक्षाएँ नहीं हैं", noToday: "आज कोई कक्षा नहीं", nextOn: "अगली: {0}, {1} · {2}",
+        stDone: "समाप्त", stNow: "अभी", stNext: "अगली", stLater: "बाद में", min: "{0} मिनट", hr: "{0} घंटा {1} मिनट",
+        nextExam: "आपकी अगली परीक्षा", noExams: "कोई आने वाली परीक्षा नहीं", noExamsSub: "{0} सेम {1} की नई तिथियाँ यहाँ दिखेंगी।",
+        timetable: "कक्षा समय-सारणी", examDates: "परीक्षा तिथियाँ", noticesForYou: "आपके लिए सूचनाएँ", seeAll: "सब देखें", noClasses: "इस सेमेस्टर के लिए अभी कक्षाएँ नहीं जोड़ी गई हैं।", noExamsYet: "इस सेमेस्टर के लिए अभी परीक्षाएँ नहीं जोड़ी गई हैं।", noNotices: "अभी कोई सूचना नहीं।",
+        relDone: "हो चुकी", relToday: "आज", relTomorrow: "कल", relIn: "{0} दिन में", about: "हमारे कॉलेज के बारे में",
+        noticesTitle: "सूचनाएँ", latestFirst: "नवीनतम पहले", all: "सभी", noNoticesFound: "कोई सूचना नहीं मिली।",
+        examSchedule: "परीक्षा कार्यक्रम", pickCS: "अपना कोर्स और सेमेस्टर चुनें", allCourses: "सभी कोर्स", allSems: "सभी सेमेस्टर", noExamsFound: "कोई परीक्षा नहीं मिली।",
+        findRoom: "मेरी कक्षा खोजें", pickClassDay: "अपनी कक्षा और दिन चुनें", allClasses: "सभी कक्षाएँ", allDays: "सभी दिन", noClassesFound: "कोई कक्षा नहीं मिली।",
+        officesTitle: "कार्यालय और विभाग", officesSub: "कहाँ जाना है और कब", call: "कॉल", email: "ईमेल", quick: "त्वरित उत्तर", tapQ: "प्रश्न पर टैप करें",
+        share: "शेयर", addCal: "कैलेंडर में जोड़ें", openPdf: "PDF खोलें", newTag: "नया", askAI: "AI से पूछें", loadErr: "डेटा लोड नहीं हो सका", checkNet: "इंटरनेट जाँचें और फिर कोशिश करें।",
+        offlineNote: "सहेजा हुआ डेटा दिख रहा है (ऑफ़लाइन)", install: "इंस्टॉल", iosTip: "इंस्टॉल करने के लिए: शेयर दबाएँ, फिर “Add to Home Screen”।"
+      }
+    };
+    const HI_DAYS = {Monday: "सोमवार", Tuesday: "मंगलवार", Wednesday: "बुधवार", Thursday: "गुरुवार", Friday: "शुक्रवार", Saturday: "शनिवार", Sunday: "रविवार"};
+    let LANG = "en"; try {LANG = localStorage.getItem("ca_lang") === "hi" ? "hi" : "en";} catch (e) { }
+    const t = (k, ...a) => {let s = I18N[LANG][k] ?? I18N.en[k] ?? k; a.forEach((v, i) => {s = s.replace("{" + i + "}", v);}); return s;};
+    const L = o => (o && (o[LANG] || o.en)) || "";
+    const dayName = d => {const k = String(d).trim(); const c = k.charAt(0).toUpperCase() + k.slice(1).toLowerCase(); return LANG === "hi" ? (HI_DAYS[c] || k) : k;};
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const app = document.getElementById("app"), cache = {};
+    let offline = false;
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
     const uniq = (rows, k) => [...new Set(rows.map(r => r[k]))].filter(v => v !== null && v !== "");
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const D = s => new Date(s + "T00:00:00");
     const diff = s => Math.round((D(s) - today) / 864e5);
-    const dmon = s => D(s).toLocaleDateString("en-IN", {month: "short"});
+    const loc = () => LANG === "hi" ? "hi-IN" : "en-IN";
+    const dmon = s => D(s).toLocaleDateString(loc(), {month: "short"});
     const dnum = s => D(s).getDate();
-    const rel = n => n < 0 ? "Done" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : `In ${n} days`;
+    const rel = n => n < 0 ? t("relDone") : n === 0 ? t("relToday") : n === 1 ? t("relTomorrow") : t("relIn", n);
     const hue = s => [...String(s)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
     const tagCss = s => `background:hsl(${hue(s)} 80% 50% / .16);color:hsl(${hue(s)} 70% 38%)`;
-    const empty = t => `<div class="empty-msg">${t}</div>`;
+    const empty = m => `<div class="empty-msg">${m}</div>`;
+    const mins = tx => {const o = []; for (const m of String(tx).matchAll(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/gi)) {let h = Number(m[1]) % 12; if (/pm/i.test(m[3])) h += 12; o.push(h * 60 + Number(m[2] || 0));} return o;};
+    const span = tx => {const a = mins(tx); return a.length ? [a[0], a[1] ?? a[0] + 60] : [0, 60];};
+    const fmtDur = m => m < 60 ? t("min", m) : t("hr", Math.floor(m / 60), m % 60);
+    const wa = txt => `https://wa.me/?text=${encodeURIComponent(txt + "\n\n" + location.origin)}`;
 
-    const sheet = $("sheet");
-    function closeSheet() {sheet.classList.remove("open");}
-    function openSheet(title, items, selected, onPick) {
-      $("shTitle").textContent = title;
-      $("shList").innerHTML = items.map((it, i) => `<button class="opt${String(it.value) === String(selected) ? " sel" : ""}" data-i="${i}">
-    <span class="bd" style="background:hsl(${hue(it.badge)} 65% 40%)">${esc(it.badge)}</span><span class="ol">${esc(it.label)}</span><span class="ck">✓</span></button>`).join("")
-        || `<p class="empty-msg">Nothing to choose yet.</p>`;
-      $("shList").onclick = e => {const b = e.target.closest(".opt"); if (!b) return; closeSheet(); onPick(items[b.dataset.i].value);};
-      sheet.querySelector(".sh-panel").scrollTop = 0; sheet.classList.add("open");
+    async function getData(tb) {
+      if (cache[tb]) return cache[tb];
+      try {
+        const {data, error} = await db.from(tb).select("*");
+        if (error) throw new Error(tb + ": " + error.message);
+        try {localStorage.setItem("ca_c_" + tb, JSON.stringify(data));} catch (e) { }
+        return (cache[tb] = data);
+      } catch (e) {
+        let raw = null; try {raw = localStorage.getItem("ca_c_" + tb);} catch (x) { }
+        if (raw) {offline = true; return (cache[tb] = JSON.parse(raw));}
+        throw e;
+      }
     }
-    sheet.querySelector(".sh-bg").onclick = closeSheet;
-    document.addEventListener("keydown", e => {if (e.key === "Escape") closeSheet();});
-
-    async function getData(t) {
-      if (cache[t]) return cache[t];
-      const {data, error} = await db.from(t).select("*");
-      if (error) throw new Error(t + ": " + error.message);
-      return (cache[t] = data);
-    }
-    const pills = (id, label, vals) => `<div class="pills" id="${id}">` + ["", ...vals].map(v =>
-      `<button class="pill${v === "" ? " on" : ""}" data-v="${esc(v)}">${v === "" ? label : esc(v)}</button>`).join("") + `</div>`;
+    const pills = (id, label, vals, fmt) => `<div class="pills" id="${id}">` + ["", ...vals].map(v =>
+      `<button class="pill${v === "" ? " on" : ""}" data-v="${esc(v)}">${v === "" ? label : esc(fmt ? fmt(v) : v)}</button>`).join("") + `</div>`;
     function bind(id, cb) {
       const c = $(id);
       c.addEventListener("click", e => {
@@ -1075,24 +1275,88 @@
       });
     }
 
+    /* ---- bottom sheet ---- */
+    const sheet = $("sheet");
+    function closeSheet() {sheet.classList.remove("open");}
+    function openSheet(title, items, selected, onPick) {
+      $("shTitle").textContent = title;
+      $("shList").innerHTML = items.map((it, i) => `<button class="opt${String(it.value) === String(selected) ? " sel" : ""}" data-i="${i}">
+    <span class="bd" style="background:hsl(${hue(it.badge)} 65% 40%)">${esc(it.badge)}</span><span class="ol">${esc(it.label)}</span><span class="ck">✓</span></button>`).join("")
+        || `<p class="empty-msg">${t("nothing")}</p>`;
+      $("shList").onclick = e => {const b = e.target.closest(".opt"); if (!b) return; closeSheet(); onPick(items[b.dataset.i].value);};
+      sheet.querySelector(".sh-panel").scrollTop = 0; sheet.classList.add("open");
+    }
+    sheet.querySelector(".sh-bg").onclick = closeSheet;
+    document.addEventListener("keydown", e => {if (e.key === "Escape") closeSheet();});
+
+    /* ---- calendar (.ics) ---- */
+    function downloadIcs(ex) {
+      const [a, b] = span(ex.time), d = String(ex.date).replaceAll("-", "");
+      const f = m => String(Math.floor(m / 60)).padStart(2, "0") + String(m % 60).padStart(2, "0") + "00";
+      const x = s => String(s ?? "").replace(/([,;\\])/g, "\\$1").replace(/\n/g, " ");
+      const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//College Assistant//EN", "BEGIN:VEVENT",
+        "UID:" + d + "-" + Math.random().toString(36).slice(2) + "@collegeassistant", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z",
+        "DTSTART:" + d + "T" + f(a), "DTEND:" + d + "T" + f(b), "SUMMARY:" + x(ex.subject + " exam"), "LOCATION:" + x(ex.room), "DESCRIPTION:" + x(ex.course + " Sem " + ex.semester),
+        "BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:Exam tomorrow", "END:VALARM",
+        "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:Exam in 1 hour", "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
+      const url = URL.createObjectURL(new Blob([lines.join("\r\n")], {type: "text/calendar"}));
+      const a2 = document.createElement("a"); a2.href = url; a2.download = "exam.ics"; document.body.appendChild(a2); a2.click(); a2.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+    document.addEventListener("click", e => {const b = e.target.closest("[data-cal]"); if (b) downloadIcs(JSON.parse(b.dataset.cal));});
+
+    /* ---- list rows ---- */
     const noticeRow = r => {
       const n = diff(r.date);
+      const txt = `📢 ${r.title}\n${r.description}\n${r.date} · ${r.department}`;
       return `<div class="item"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
-  <h3>${esc(r.title)}${n <= 0 && n > -8 ? '<span class="new">NEW</span>' : ""}</h3><p>${esc(r.description)}</p>
+  <h3>${esc(r.title)}${n <= 0 && n > -8 ? `<span class="new">${t("newTag")}</span>` : ""}</h3><p>${esc(r.description)}</p>
   <span class="tag" style="${tagCss(r.department)}">${esc(r.department)}</span>
-  ${r.pdf_link ? `<br><a class="link" href="${esc(r.pdf_link)}" target="_blank" rel="noopener">Open PDF</a>` : ""}</div></div>`;
+  ${r.pdf_link ? `<br><a class="link" href="${esc(r.pdf_link)}" target="_blank" rel="noopener">${t("openPdf")}</a>` : ""}
+  <div class="acts2"><a class="mini wa" href="${esc(wa(txt))}" target="_blank" rel="noopener">${t("share")}</a></div></div></div>`;
     };
     const examRow = r => {
       const n = diff(r.date);
+      const txt = `📝 ${r.subject} (${r.course} Sem ${r.semester})\n📅 ${r.date}\n🕒 ${r.time}\n📍 ${r.room}`;
+      const cal = esc(JSON.stringify({subject: r.subject, date: r.date, time: r.time, room: r.room, course: r.course, semester: r.semester}));
       return `<div class="item" style="${n < 0 ? "opacity:.55" : ""}"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
-  <h3>${esc(r.subject)}</h3><p>${esc(r.course)} · Semester ${esc(r.semester)}</p><p>${esc(r.time)}</p>
-  <span class="tag" style="background:var(--soft);color:var(--ink)">${rel(n)}</span></div><div class="room">${esc(r.room)}</div></div>`;
+  <h3>${esc(r.subject)}</h3><p>${esc(r.course)} · ${t("semN", esc(r.semester))}</p><p>${esc(r.time)}</p>
+  <span class="tag" style="background:var(--soft);color:var(--ink)">${rel(n)}</span>
+  <div class="acts2"><a class="mini wa" href="${esc(wa(txt))}" target="_blank" rel="noopener">${t("share")}</a>${n >= 0 ? `<button class="mini" data-cal="${cal}">📅 ${t("addCal")}</button>` : ""}</div></div>
+  <div class="room">${esc(r.room)}</div></div>`;
+    };
+
+    /* ---- today's classes + next class ---- */
+    function todayBlock(tt) {
+      const now = new Date(), nowM = now.getHours() * 60 + now.getMinutes();
+      const dayOf = off => new Date(now.getTime() + off * 864e5).toLocaleDateString("en-US", {weekday: "long"});
+      const byDay = d => tt.filter(r => String(r.day).trim().toLowerCase() === d.toLowerCase()).sort((a, b) => span(a.time)[0] - span(b.time)[0]);
+      const list = byDay(dayOf(0));
+      const st = r => {const [a, b] = span(r.time); return nowM >= b ? "done" : nowM >= a ? "now" : "later";};
+      const sts = list.map(st), nextI = sts.indexOf("later"), curI = sts.indexOf("now");
+      let msg;
+      if (curI >= 0) msg = `🟢 ${t("classNow")} · ${esc(list[curI].room_number)}`;
+      else if (nextI >= 0) msg = `⏰ ${t("nextClassIn", fmtDur(span(list[nextI].time)[0] - nowM))} · ${esc(list[nextI].room_number)}`;
+      else msg = list.length ? `✅ ${t("noMore")}` : `🎉 ${t("noToday")}`;
+      if (curI < 0 && nextI < 0) for (let k = 1; k <= 7; k++) {const d = byDay(dayOf(k)); if (d.length) {msg += " · " + t("nextOn", esc(dayName(d[0].day)), esc(d[0].time), esc(d[0].room_number)); break;} }
+      const key = {done: "stDone", now: "stNow", next: "stNext", later: "stLater"};
+      const rows = list.map((r, i) => {
+        const s = i === nextI ? "next" : sts[i];
+        return `<div class="item${s === "done" ? " dim" : ""}"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p><span class="tag st-${s}">${t(key[s])}</span></div><div class="room">${esc(r.room_number)}</div></div>`;
+      }).join("");
+      return `<div class="sec" style="margin-top:20px"><h2>${t("todayClasses")} · ${esc(dayName(dayOf(0)))}</h2></div><div class="nextbar">${msg}</div>${rows ? `<div class="list">${rows}</div>` : ""}`;
+    }
+
+    const SKY = `<svg class="sky" viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#fff" fill-opacity=".13"><rect x="0" y="90" width="400" height="6"/><rect x="150" y="44" width="100" height="48"/><polygon points="140,44 200,22 260,44"/><path d="M186,26 Q200,-2 214,26Z"/><rect x="60" y="58" width="86" height="34"/><rect x="254" y="58" width="86" height="34"/><rect x="26" y="48" width="32" height="44"/><polygon points="22,48 42,30 62,48"/><rect x="342" y="48" width="32" height="44"/><polygon points="338,48 358,30 378,48"/><circle cx="12" cy="80" r="14"/><circle cx="388" cy="80" r="14"/><circle cx="102" cy="84" r="9"/><circle cx="298" cy="84" r="9"/></g><g fill="#fff" fill-opacity=".09"><rect x="160" y="50" width="6" height="42"/><rect x="176" y="50" width="6" height="42"/><rect x="192" y="50" width="6" height="42"/><rect x="208" y="50" width="6" height="42"/><rect x="224" y="50" width="6" height="42"/><rect x="238" y="50" width="6" height="42"/></g></svg>`;
+    const heroHTML = () => {
+      const h = new Date().getHours(), g = h < 12 ? t("gm") : h < 17 ? t("ga") : t("ge");
+      return `<div class="banner"><div class="banner-in"><small>${g} 👋 · ${t("welcome")}</small><h1>${esc(L(COLLEGE.name))}</h1>
+    <p>${esc(L(COLLEGE.place))}</p><p class="mot">“${esc(COLLEGE.motto)}”</p></div>${SKY}</div>`;
     };
 
     const pages = {
       async home() {
         const [n, e, rm] = await Promise.all([getData("notices"), getData("exams"), getData("rooms")]);
-        const h = new Date().getHours(), g = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
         const roomCourse = c => String(c).replace(/\s*\d+(st|nd|rd|th)\s*sem.*$/i, "").trim();
         const courses = [...new Set([...uniq(e, "course"), ...rm.map(r => roomCourse(r.class))])].filter(Boolean).sort();
         const semsFor = c => {
@@ -1102,8 +1366,7 @@
         };
         const inClass = (r, c, sm) => roomCourse(r.class) === c && new RegExp(`\\b${sm}(st|nd|rd|th)\\b`, "i").test(r.class);
         const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        const dayIdx = d => {const i = DAYS.indexOf(d); return i < 0 ? 9 : i;};
-        const tmin = t => {const m = String(t).match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i); if (!m) return 0; let hr = Number(m[1]) % 12; if (/pm/i.test(m[3])) hr += 12; return hr * 60 + Number(m[2] || 0);};
+        const dayIdx = d => {const i = DAYS.findIndex(x => x.toLowerCase() === String(d).trim().toLowerCase()); return i < 0 ? 9 : i;};
         const todayName = new Date().toLocaleDateString("en-US", {weekday: "long"});
         const noticesFor = c => n.filter(r => {
           const txt = (r.title + " " + r.description).toLowerCase(), named = courses.filter(k => txt.includes(k.toLowerCase()));
@@ -1111,27 +1374,26 @@
         }).sort((a, b) => b.date.localeCompare(a.date));
 
         app.innerHTML = `
-      <h1 class="hello">${g} 👋</h1><p class="sub">Choose your course to see your timetable, exams and notices.</p>
       <div class="pickhero">
-        <div class="pk-title">Pick your class</div>
+        <div class="pk-title">${t("pickClass")}</div><p class="pk-sub">${t("subPick")}</p>
         <div class="pk-grid">
-          <button class="field" id="fCourse" aria-haspopup="dialog"><small>Course</small><b id="vCourse">Choose</b><i>⌄</i></button>
-          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>Semester</small><b id="vSem">Choose</b><i>⌄</i></button>
+          <button class="field" id="fCourse" aria-haspopup="dialog"><small>${t("course")}</small><b id="vCourse">${t("choose")}</b><i>⌄</i></button>
+          <button class="field" id="fSem" aria-haspopup="dialog" disabled><small>${t("semester")}</small><b id="vSem">${t("choose")}</b><i>⌄</i></button>
         </div>
       </div>
       <div id="mine"></div>
       <section class="about" aria-labelledby="abTitle">
-        <h2 id="abTitle">About our college</h2>
+        <h2 id="abTitle">${t("about")}</h2>
         <div class="abox">
-          <div class="ahead"><div class="lg">🏛️</div><div><b>${esc(COLLEGE.name)}</b><span>${esc(COLLEGE.place)} · ${esc(COLLEGE.motto)}</span></div></div>
-          ${COLLEGE.lines.map(l => `<div class="arow"><i>${l[0]}</i><span>${esc(l[1])}</span></div>`).join("")}
+          <div class="ahead"><div class="lg">🏛️</div><div><b>${esc(L(COLLEGE.name))}</b><span>${esc(L(COLLEGE.place))} · ${esc(COLLEGE.motto)}</span></div></div>
+          ${COLLEGE.lines.map(l => `<div class="arow"><i>${l[0]}</i><span>${esc(L(l[1]))}</span></div>`).join("")}
         </div>
       </section>`;
 
         let course = "", sem = "";
         const paint = () => {
-          $("vCourse").textContent = course || "Choose"; $("fCourse").classList.toggle("has", !!course);
-          $("vSem").textContent = sem ? "Semester " + sem : "Choose"; $("fSem").classList.toggle("has", !!sem);
+          $("vCourse").textContent = course || t("choose"); $("fCourse").classList.toggle("has", !!course);
+          $("vSem").textContent = sem ? t("semN", sem) : t("choose"); $("fSem").classList.toggle("has", !!sem);
           $("fSem").disabled = !course;
         };
         const mineEl = $("mine");
@@ -1139,8 +1401,7 @@
           const c = course, sm = sem;
           try {localStorage.setItem("ca_pick", JSON.stringify({course: c, sem: sm}));} catch (err) { }
           if (!c || !sm) {
-            mineEl.innerHTML = `<div class="ticket empty"><b>${c ? "Now choose your semester" : "Pick your course and semester"}</b>
-          <p class="sub" style="margin:4px 0 0">Your timetable, exam dates and notices will appear right here.</p></div>`;
+            mineEl.innerHTML = `<div class="ticket empty" style="margin-top:18px"><b>${c ? t("emptyTitle2") : t("emptyTitle1")}</b><p class="sub" style="margin:4px 0 0">${t("emptyBody")}</p></div>`;
             return;
           }
           const myExams = e.filter(x => x.course === c && String(x.semester) === sm).sort((a, b) => a.date.localeCompare(b.date));
@@ -1148,89 +1409,87 @@
           const tt = rm.filter(r => inClass(r, c, sm));
           const days = uniq(tt, "day").sort((a, b) => dayIdx(a) - dayIdx(b));
           const my = noticesFor(c).slice(0, 6);
-          mineEl.innerHTML = `
-        ${next ? `<div class="ticket"><div class="stub"><div class="n">${dnum(next.date)}</div><div class="m">${dmon(next.date)}</div></div><div class="perf"></div>
-          <div class="tbody"><small>Your next exam</small><h3>${esc(next.subject)}</h3>
-          <div class="tmeta"><span>${esc(next.course)} · Sem ${esc(next.semester)}</span><span>🕒 ${esc(next.time)}</span><span>📍 ${esc(next.room)}</span></div>
+          mineEl.innerHTML = todayBlock(tt) + `
+        ${next ? `<div class="ticket" style="margin-top:20px"><div class="stub"><div class="n">${dnum(next.date)}</div><div class="m">${dmon(next.date)}</div></div><div class="perf"></div>
+          <div class="tbody"><small>${t("nextExam")}</small><h3>${esc(next.subject)}</h3>
+          <div class="tmeta"><span>${esc(next.course)} · ${t("semShort", esc(next.semester))}</span><span>🕒 ${esc(next.time)}</span><span>📍 ${esc(next.room)}</span></div>
           <span class="when">${rel(diff(next.date))}</span></div></div>`
-              : `<div class="ticket empty"><b>No upcoming exams</b><p class="sub" style="margin:4px 0 0">New dates for ${esc(c)} Sem ${esc(sm)} will show up here.</p></div>`}
-        <div class="sec"><h2>Class timetable</h2></div>
-        <div class="list">${days.map(d => `<div class="day"><b>${esc(d)}</b>${d === todayName ? '<span class="new" style="background:var(--sun);color:#0F1B3D">Today</span>' : ""}</div>` +
-                tt.filter(r => r.day === d).sort((a, b) => tmin(a.time) - tmin(b.time)).map(r =>
-                  `<div class="item"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p></div><div class="room">${esc(r.room_number)}</div></div>`).join("")).join("") ||
-            empty("No classes added yet for this semester.")}</div>
-        <div class="sec" style="margin-top:22px"><h2>Exam dates</h2></div>
-        <div class="list">${myExams.map(examRow).join("") || empty("No exams added yet for this semester.")}</div>
-        <div class="sec" style="margin-top:22px"><h2>Notices for you</h2><a href="#notices">See all</a></div>
-        <div class="list">${my.map(noticeRow).join("") || empty("No notices right now.")}</div>`;
+              : `<div class="ticket empty" style="margin-top:20px"><b>${t("noExams")}</b><p class="sub" style="margin:4px 0 0">${t("noExamsSub", esc(c), esc(sm))}</p></div>`}
+        <div class="sec"><h2>${t("timetable")}</h2></div>
+        <div class="list">${days.map(d => `<div class="day"><b>${esc(dayName(d))}</b>${String(d).trim().toLowerCase() === todayName.toLowerCase() ? `<span class="new" style="background:var(--sun);color:#0F1B3D">${t("relToday")}</span>` : ""}</div>` +
+                tt.filter(r => r.day === d).sort((a, b) => span(a.time)[0] - span(b.time)[0]).map(r =>
+                  `<div class="item"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p></div><div class="room">${esc(r.room_number)}</div></div>`).join("")).join("") || empty(t("noClasses"))}</div>
+        <div class="sec" style="margin-top:22px"><h2>${t("examDates")}</h2></div>
+        <div class="list">${myExams.map(examRow).join("") || empty(t("noExamsYet"))}</div>
+        <div class="sec" style="margin-top:22px"><h2>${t("noticesForYou")}</h2><a href="#notices">${t("seeAll")}</a></div>
+        <div class="list">${my.map(noticeRow).join("") || empty(t("noNotices"))}</div>`;
         };
-        $("fCourse").onclick = () => openSheet("Choose your course", courses.map(c => ({value: c, label: c, badge: c})), course, v => {
+        $("fCourse").onclick = () => openSheet(t("chooseCourse"), courses.map(c => ({value: c, label: c, badge: c})), course, v => {
           if (v !== course) sem = "";
           course = v; paint(); render();
           if (!sem) setTimeout(() => $("fSem").click(), 280);
         });
-        $("fSem").onclick = () => openSheet("Choose your semester", semsFor(course).map(x => ({value: String(x), label: "Semester " + x, badge: String(x)})), sem, v => {sem = v; paint(); render();});
+        $("fSem").onclick = () => openSheet(t("chooseSem"), semsFor(course).map(x => ({value: String(x), label: t("semN", x), badge: String(x)})), sem, v => {sem = v; paint(); render();});
         let saved = {}; try {saved = JSON.parse(localStorage.getItem("ca_pick") || "{}");} catch (err) { }
         if (saved.course && courses.includes(saved.course)) {
           course = saved.course;
           if (saved.sem && semsFor(course).map(String).includes(String(saved.sem))) sem = String(saved.sem);
         }
-        paint();
-        render();
+        paint(); render();
       },
 
       async notices() {
         const rows = (await getData("notices")).sort((a, b) => b.date.localeCompare(a.date));
-        app.innerHTML = `<h1 class="ptitle">Notices</h1><p class="sub">Latest first</p>
-      ${pills("deps", "All", uniq(rows, "department"))}<div class="list" id="list"></div>`;
+        app.innerHTML = `<h1 class="ptitle">${t("noticesTitle")}</h1><p class="sub">${t("latestFirst")}</p>
+      ${pills("deps", t("all"), uniq(rows, "department"))}<div class="list" id="list"></div>`;
         let dep = "";
         const draw = () => {
           const f = rows.filter(r => !dep || r.department === dep);
-          $("list").innerHTML = f.map(noticeRow).join("") || empty("No notices found.");
+          $("list").innerHTML = f.map(noticeRow).join("") || empty(t("noNoticesFound"));
         };
         bind("deps", v => {dep = v; draw();}); draw();
       },
 
       async exams() {
         const rows = (await getData("exams")).sort((a, b) => a.date.localeCompare(b.date));
-        app.innerHTML = `<h1 class="ptitle">Exam schedule</h1><p class="sub">Pick your course and semester</p>
-      ${pills("cs", "All courses", uniq(rows, "course"))}${pills("sm", "All semesters", uniq(rows, "semester").sort((a, b) => a - b).map(x => "Sem " + x))}
+        app.innerHTML = `<h1 class="ptitle">${t("examSchedule")}</h1><p class="sub">${t("pickCS")}</p>
+      ${pills("cs", t("allCourses"), uniq(rows, "course"))}${pills("sm", t("allSems"), uniq(rows, "semester").sort((a, b) => a - b).map(x => t("semShort", x)))}
       <div class="list" id="list"></div>`;
         let c = "", s = "";
         const draw = () => {
-          const f = rows.filter(r => (!c || r.course === c) && (!s || "Sem " + r.semester === s));
-          $("list").innerHTML = f.map(examRow).join("") || empty("No exams found.");
+          const f = rows.filter(r => (!c || r.course === c) && (!s || t("semShort", r.semester) === s));
+          $("list").innerHTML = f.map(examRow).join("") || empty(t("noExamsFound"));
         };
         bind("cs", v => {c = v; draw();}); bind("sm", v => {s = v; draw();}); draw();
       },
 
       async rooms() {
         const rows = await getData("rooms");
-        app.innerHTML = `<h1 class="ptitle">Find my classroom</h1><p class="sub">Choose your class and day</p>
-      ${pills("cl", "All classes", uniq(rows, "class"))}${pills("dy", "All days", uniq(rows, "day"))}<div class="list" id="list"></div>`;
+        app.innerHTML = `<h1 class="ptitle">${t("findRoom")}</h1><p class="sub">${t("pickClassDay")}</p>
+      ${pills("cl", t("allClasses"), uniq(rows, "class"))}${pills("dy", t("allDays"), uniq(rows, "day"), dayName)}<div class="list" id="list"></div>`;
         let c = "", d = "";
         const draw = () => {
           const f = rows.filter(r => (!c || r.class === c) && (!d || r.day === d));
-          $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.class)}</h3><p>${esc(r.day)} · ${esc(r.time)}</p></div>
-        <div class="room">${esc(r.room_number)}</div></div>`).join("") || empty("No classes found.");
+          $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.class)}</h3><p>${esc(dayName(r.day))} · ${esc(r.time)}</p></div>
+        <div class="room">${esc(r.room_number)}</div></div>`).join("") || empty(t("noClassesFound"));
         };
         bind("cl", v => {c = v; draw();}); bind("dy", v => {d = v; draw();}); draw();
       },
 
       async departments() {
         const rows = await getData("departments");
-        const ico = n => /exam/i.test(n) ? "📝" : /admission/i.test(n) ? "🎓" : /account|fee/i.test(n) ? "💰" : /librar/i.test(n) ? "📚" : /comput|cs/i.test(n) ? "💻" : /placement/i.test(n) ? "💼" : "🏛️";
-        app.innerHTML = `<h1 class="ptitle">Offices and departments</h1><p class="sub">Where to go and when</p><div class="list">` + rows.map(r => {
+        const ico = nm => /exam/i.test(nm) ? "📝" : /admission/i.test(nm) ? "🎓" : /account|fee/i.test(nm) ? "💰" : /librar/i.test(nm) ? "📚" : /comput|cs/i.test(nm) ? "💻" : /placement/i.test(nm) ? "💼" : "🏛️";
+        app.innerHTML = `<h1 class="ptitle">${t("officesTitle")}</h1><p class="sub">${t("officesSub")}</p><div class="list">` + rows.map(r => {
           const em = (String(r.contact).match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0], ph = (String(r.contact).match(/\d[\d\s-]{6,}\d/) || [])[0];
           return `<div class="dept"><h3><span class="em">${ico(r.name)}</span>${esc(r.name)}</h3>
         <p>📍 ${esc(r.location)}</p><p>🕒 ${esc(r.timings)}</p><p class="mut">${esc(r.services)}</p>
-        <div class="acts">${ph ? `<a class="btn" href="tel:${esc(ph.replace(/[\s-]/g, ""))}">Call</a>` : ""}${em ? `<a class="btn alt" href="mailto:${esc(em)}">Email</a>` : ""}</div></div>`;
+        <div class="acts">${ph ? `<a class="btn" href="tel:${esc(ph.replace(/[\s-]/g, ""))}">${t("call")}</a>` : ""}${em ? `<a class="btn alt" href="mailto:${esc(em)}">${t("email")}</a>` : ""}</div></div>`;
         }).join("") + `</div>`;
       },
 
       async faqs() {
         const rows = await getData("faqs");
-        app.innerHTML = `<h1 class="ptitle">Quick answers</h1><p class="sub">Tap a question</p><div class="list">` + rows.map(r =>
+        app.innerHTML = `<h1 class="ptitle">${t("quick")}</h1><p class="sub">${t("tapQ")}</p><div class="list">` + rows.map(r =>
           `<details><summary>${esc(r.question)}</summary><p>${esc(r.answer)}</p></details>`).join("") + `</div>`;
       },
     };
@@ -1238,20 +1497,40 @@
     async function route() {
       const p = (location.hash || "#home").slice(1), page = pages[p] ? p : "home";
       document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === page));
+      $("hero").innerHTML = page === "home" ? heroHTML() : "";
       app.innerHTML = `<div class="sk" style="height:44px;width:60%"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
-      try {await pages[page](); window.scrollTo(0, 0);}
-      catch (e) {app.innerHTML = `<div class="err"><b>Could not load data</b><p>${esc(e.message)}</p><p>Check your internet connection and try again.</p></div>`;}
+      offline = false;
+      try {
+        await pages[page](); window.scrollTo(0, 0);
+        if (offline) app.insertAdjacentHTML("afterbegin", `<div class="err" style="background:var(--soft);color:var(--ink);margin:12px 0">${t("offlineNote")}</div>`);
+      }
+      catch (e) {app.innerHTML = `<div class="err"><b>${t("loadErr")}</b><p>${esc(e.message)}</p><p>${t("checkNet")}</p></div>`;}
     }
     window.addEventListener("hashchange", route);
 
-    function setTheme(t) {
-      document.documentElement.dataset.theme = t; $("theme").textContent = t === "dark" ? "☀️" : "🌙";
-      try {localStorage.setItem("ca_theme", t);} catch (e) { }
+    /* ---- language, theme, install ---- */
+    function applyStatic() {
+      document.querySelectorAll("[data-k]").forEach(el => {el.textContent = t(el.dataset.k);});
+      $("lang").textContent = LANG === "en" ? "हिं" : "EN"; document.documentElement.lang = LANG;
     }
-    let saved = null; try {saved = localStorage.getItem("ca_theme");} catch (e) { }
-    setTheme(saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+    $("lang").onclick = () => {LANG = LANG === "en" ? "hi" : "en"; try {localStorage.setItem("ca_lang", LANG);} catch (e) { } applyStatic(); route();};
+    function setTheme(tm) {
+      document.documentElement.dataset.theme = tm; $("theme").textContent = tm === "dark" ? "☀️" : "🌙";
+      try {localStorage.setItem("ca_theme", tm);} catch (e) { }
+    }
+    let savedTheme = null; try {savedTheme = localStorage.getItem("ca_theme");} catch (e) { }
+    setTheme(savedTheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
     $("theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
-    route();
+
+    let deferred = null;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    addEventListener("beforeinstallprompt", e => {e.preventDefault(); deferred = e; $("install").hidden = false;});
+    addEventListener("appinstalled", () => {$("install").hidden = true;});
+    if (isIOS && !standalone) $("install").hidden = false;
+    $("install").onclick = async () => {if (deferred) {deferred.prompt(); await deferred.userChoice; deferred = null; $("install").hidden = true;} else if (isIOS) alert(t("iosTip"));};
+    if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => { }));
+
+    applyStatic(); route();
   </script>
 </body>
 
