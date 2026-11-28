@@ -2,7 +2,7 @@
 // Needs these Environment Variables in Vercel: GEMINI_API_KEY, SUPABASE_URL, SUPABASE_KEY
 // Optional: GEMINI_MODEL (default below)
 
-const TABLES = ["notices", "exams", "rooms", "departments", "faqs"];
+const TABLES = ["notices", "exams", "rooms", "departments", "faqs", "programs"];
 
 async function loadData() {
   const out = {};
@@ -10,7 +10,7 @@ async function loadData() {
     const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${t}?select=*`, {
       headers: { apikey: process.env.SUPABASE_KEY },
     });
-    if (!r.ok) throw new Error(`Supabase ${t}: ${r.status}`);
+    if (!r.ok) { if (t === "programs") { out[t] = []; return; } throw new Error(`Supabase ${t}: ${r.status}`); }
     const rows = await r.json();
     out[t] = rows.map(({ id, ...rest }) => rest); // drop internal ids
   }));
@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
     const system =
       `You are College Assistant, a helpful assistant for college students. Today's date is ${today} (${weekday}), and the time is ${nowTime} in India.\n` +
       `Answer ONLY using the COLLEGE DATA below. If the answer is not in the data, say you don't have that information ` +
-      `and suggest contacting the college office or the relevant department. Never invent dates, rooms, phone numbers or rules.\n` +
+      `and suggest contacting the college office or the relevant department. Never invent dates, rooms, phone numbers, fees or rules. The data includes the university's programmes (with eligibility) and its two campuses.\n` +
       `Be warm, friendly and encouraging, like a helpful senior student. Keep answers short (2 to 4 sentences), because your reply will also be read aloud.\n` +
       `Use plain text with no tables or headings. You may use **bold** for key facts such as dates, times and room numbers, and at most one emoji.\n` +
       `Reply in the same language the student used (English or Hindi).\n\n` +
