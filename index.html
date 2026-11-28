@@ -1,1522 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>College Assistant</title>
-  <meta name="theme-color" content="#0F1B3D">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/icon-192.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="College">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <style>
-    :root {
-      --bg: #F2F5FB;
-      --surface: #fff;
-      --ink: #0F1B3D;
-      --muted: #5B6785;
-      --line: #E1E7F2;
-      --blue: #2B50F5;
-      --sun: #FFB703;
-      --coral: #FF5D5D;
-      --mint: #0EA678;
-      --violet: #7A4DFF;
-      --soft: #EAF0FF;
-      --tk: #0F1B3D;
-    }
-
-    [data-theme="dark"] {
-      --tk: #24347A;
-      --bg: #0B1226;
-      --surface: #141D38;
-      --ink: #EEF2FF;
-      --muted: #9AA7C7;
-      --line: #243157;
-      --soft: #1B2750;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      scroll-padding-top: 70px;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.45;
-      padding-bottom: calc(86px + env(safe-area-inset-bottom));
-    }
-
-    h1,
-    h2,
-    h3,
-    .disp {
-      font-family: "Bricolage Grotesque", system-ui, sans-serif;
-      letter-spacing: -.02em;
-      margin: 0;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button,
-    input,
-    select {
-      font: inherit;
-      color: inherit;
-    }
-
-    :focus-visible {
-      outline: 3px solid var(--blue);
-      outline-offset: 2px;
-    }
-
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: color-mix(in srgb, var(--bg) 88%, transparent);
-      backdrop-filter: blur(10px);
-      padding: calc(10px + env(safe-area-inset-top)) 18px 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 11px;
-      background: var(--tk);
-      color: var(--sun);
-      display: grid;
-      place-items: center;
-      font-size: 18px;
-    }
-
-    .top b {
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-size: 18px;
-      flex: 1;
-      letter-spacing: -.02em;
-    }
-
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      cursor: pointer;
-      font-size: 17px;
-    }
-
-    main {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 6px 18px 0;
-    }
-
-    .hello {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1.1;
-      margin: 10px 0 4px;
-    }
-
-    .sub {
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-
-    .search {
-      width: 100%;
-      padding: 14px 16px 14px 44px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%238A94B0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='9' cy='9' r='6'/%3E%3Cpath d='M14 14l4 4'/%3E%3C/svg%3E") 14px 50% no-repeat;
-    }
-
-    /* the memorable thing: next exam as a ticket */
-    .ticket {
-      display: flex;
-      margin: 18px 0 22px;
-      background: var(--tk);
-      color: #fff;
-      border-radius: 22px;
-      position: relative;
-      overflow: hidden;
-      animation: slide .6s cubic-bezier(.2, .8, .2, 1) both;
-    }
-
-    @keyframes slide {
-      from {
-        opacity: 0;
-        transform: translateY(14px) rotate(-.6deg)
-      }
-
-      to {
-        opacity: 1;
-        transform: none
-      }
-    }
-
-    .stub {
-      width: 104px;
-      padding: 18px 8px;
-      text-align: center;
-      background: var(--sun);
-      color: #0F1B3D;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      flex: none;
-    }
-
-    .stub .n {
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-weight: 800;
-      font-size: 46px;
-      line-height: .95;
-    }
-
-    .stub .m {
-      font-weight: 700;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    .perf {
-      width: 0;
-      border-left: 3px dotted rgba(255, 255, 255, .35);
-      margin: 14px 0;
-      position: relative;
-    }
-
-    .perf::before,
-    .perf::after {
-      content: "";
-      position: absolute;
-      left: -12px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--bg);
-    }
-
-    .perf::before {
-      top: -25px
-    }
-
-    .perf::after {
-      bottom: -25px
-    }
-
-    .tbody {
-      padding: 16px 18px;
-      min-width: 0;
-    }
-
-    .tbody small {
-      color: #AFC0FF;
-      font-size: 13px;
-    }
-
-    .tbody h3 {
-      font-size: 22px;
-      line-height: 1.15;
-      margin: 4px 0 8px;
-    }
-
-    .tmeta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 14px;
-      font-size: 14px;
-      color: #DCE4FF;
-    }
-
-    .when {
-      display: inline-block;
-      margin-top: 10px;
-      background: var(--coral);
-      color: #fff;
-      font-weight: 700;
-      border-radius: 99px;
-      padding: 3px 12px;
-      font-size: 13px;
-    }
-
-    .ticket.empty {
-      background: var(--soft);
-      color: var(--ink);
-      padding: 20px;
-      display: block;
-    }
-
-    .tiles {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 26px;
-    }
-
-    .tile {
-      flex: 0 0 calc((100% - 24px) / 3);
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px 8px 12px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 13.5px;
-    }
-
-    .tile i {
-      display: grid;
-      place-items: center;
-      width: 46px;
-      height: 46px;
-      margin: 0 auto 8px;
-      border-radius: 15px;
-      font-style: normal;
-      font-size: 22px;
-      color: #fff;
-    }
-
-    .sec {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin: 4px 0 8px;
-    }
-
-    .sec h2 {
-      font-size: 21px;
-      font-weight: 800;
-    }
-
-    .sec a {
-      color: var(--blue);
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .ptitle {
-      font-size: 30px;
-      font-weight: 800;
-      margin: 12px 0 2px;
-    }
-
-    .pills {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 0 12px;
-      scrollbar-width: none;
-    }
-
-    .pills::-webkit-scrollbar {
-      display: none;
-    }
-
-    .pill {
-      flex: none;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 99px;
-      padding: 7px 15px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .pill.on {
-      background: var(--ink);
-      color: var(--bg);
-      border-color: var(--ink);
-      font-weight: 600;
-    }
-
-    [data-theme="dark"] .pill.on {
-      background: var(--sun);
-      color: #0F1B3D;
-      border-color: var(--sun);
-    }
-
-    .list {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .item {
-      display: flex;
-      gap: 14px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .item:last-child {
-      border-bottom: 0;
-    }
-
-    .date {
-      flex: none;
-      width: 50px;
-      text-align: center;
-      border-radius: 14px;
-      background: var(--soft);
-      padding: 6px 0;
-      height: fit-content;
-    }
-
-    .date b {
-      display: block;
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-size: 21px;
-      line-height: 1;
-    }
-
-    .date span {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .item h3 {
-      font-size: 16.5px;
-      font-weight: 600;
-      margin: 0 0 3px;
-      font-family: system-ui, sans-serif;
-      letter-spacing: 0;
-    }
-
-    .item p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .item .body {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .tag {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 8px;
-      padding: 2px 9px;
-      margin-top: 6px;
-    }
-
-    .new {
-      background: var(--coral);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      border-radius: 6px;
-      padding: 2px 7px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-
-    .room {
-      flex: none;
-      align-self: center;
-      background: var(--ink);
-      color: var(--sun);
-      font-weight: 800;
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    [data-theme="dark"] .room {
-      background: var(--sun);
-      color: #0F1B3D;
-    }
-
-    .dot {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .link {
-      display: inline-block;
-      margin-top: 8px;
-      color: var(--blue);
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .dept {
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .dept:last-child {
-      border-bottom: 0;
-    }
-
-    .dept h3 {
-      font-size: 19px;
-      font-weight: 800;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .dept .em {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      background: var(--soft);
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-    }
-
-    .dept p {
-      margin: 6px 0 0;
-      font-size: 14.5px;
-    }
-
-    .dept .mut {
-      color: var(--muted);
-    }
-
-    .acts {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border-radius: 12px;
-      padding: 9px 16px;
-      font-weight: 700;
-      font-size: 14px;
-      background: var(--ink);
-      color: var(--bg);
-    }
-
-    .btn.alt {
-      background: var(--soft);
-      color: var(--ink);
-    }
-
-    details {
-      border-bottom: 1px solid var(--line);
-      padding: 14px 16px;
-    }
-
-    details:last-child {
-      border-bottom: 0;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    summary::after {
-      content: "+";
-      font-size: 22px;
-      line-height: 1;
-      color: var(--blue);
-      transition: transform .2s;
-    }
-
-    details[open] summary::after {
-      transform: rotate(45deg);
-    }
-
-    details p {
-      margin: 10px 0 0;
-      color: var(--muted);
-    }
-
-    .empty-msg {
-      text-align: center;
-      color: var(--muted);
-      padding: 34px 10px;
-    }
-
-    .err {
-      background: #FFECEC;
-      color: #8A1C1C;
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .sk {
-      height: 76px;
-      border-radius: 18px;
-      margin-bottom: 12px;
-      background: linear-gradient(90deg, var(--line), var(--soft), var(--line));
-      background-size: 200% 100%;
-      animation: sh 1.2s infinite;
-    }
-
-    @keyframes sh {
-      to {
-        background-position: -200% 0
-      }
-    }
-
-    .fab {
-      position: fixed;
-      right: 16px;
-      bottom: calc(88px + env(safe-area-inset-bottom));
-      z-index: 30;
-      color: #fff;
-      border-radius: 99px;
-      padding: 13px 20px 13px 16px;
-      font-weight: 800;
-      font-size: 15px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      background: linear-gradient(135deg, #2B50F5, #7A4DFF);
-      box-shadow: 0 8px 24px rgba(79, 70, 229, .45);
-      animation: glow 2.4s ease-in-out infinite;
-    }
-
-    .fab .sp {
-      font-size: 19px;
-    }
-
-    .fab small {
-      background: #FFB703;
-      color: #0F1B3D;
-      font-size: 10.5px;
-      font-weight: 800;
-      border-radius: 6px;
-      padding: 1px 6px;
-    }
-
-    @keyframes glow {
-
-      0%,
-      100% {
-        box-shadow: 0 8px 24px rgba(79, 70, 229, .45), 0 0 0 0 rgba(122, 77, 255, .5)
-      }
-
-      50% {
-        box-shadow: 0 8px 24px rgba(79, 70, 229, .45), 0 0 0 11px rgba(122, 77, 255, 0)
-      }
-    }
-
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 25;
-      background: var(--surface);
-      border-top: 1px solid var(--line);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
-    }
-
-    nav a em {
-      font-style: normal;
-    }
-
-    nav a {
-      flex: 1;
-      text-align: center;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--muted);
-      padding: 2px 0;
-    }
-
-    nav a span {
-      display: block;
-      width: 52px;
-      margin: 0 auto 2px;
-      padding: 4px 0;
-      border-radius: 99px;
-      font-size: 19px;
-    }
-
-    nav a.on {
-      color: var(--ink);
-    }
-
-    nav a.on span {
-      background: var(--sun);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation: none !important;
-        transition: none !important;
-      }
-    }
-
-    .pick {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 14px;
-      margin-bottom: 6px;
-    }
-
-    .pick label {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--muted);
-      display: block;
-    }
-
-    .pick select {
-      width: 100%;
-      margin-top: 6px;
-      padding: 12px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--bg);
-      font-weight: 600;
-      font-size: 15px;
-    }
-
-    .pick select:disabled {
-      opacity: .5;
-    }
-
-    .day {
-      padding: 9px 16px;
-      background: var(--soft);
-      font-weight: 800;
-      font-family: "Bricolage Grotesque", sans-serif;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .pickhero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 26px;
-      padding: 18px;
-      margin-bottom: 6px;
-      color: #fff;
-      background: radial-gradient(circle at 88% 0%, rgba(255, 183, 3, .55), transparent 45%), linear-gradient(135deg, #17236B, #2B50F5 62%, #7A4DFF);
-      box-shadow: 0 14px 30px rgba(43, 80, 245, .28);
-    }
-
-    .pickhero::after {
-      content: "🎓";
-      position: absolute;
-      right: -6px;
-      top: -16px;
-      font-size: 96px;
-      opacity: .16;
-      transform: rotate(14deg);
-      pointer-events: none;
-    }
-
-    .pk-title {
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-weight: 800;
-      font-size: 22px;
-      margin-bottom: 12px;
-      position: relative;
-    }
-
-    .pk-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .field {
-      text-align: left;
-      color: #fff;
-      background: rgba(255, 255, 255, .16);
-      border: 1.5px solid rgba(255, 255, 255, .32);
-      border-radius: 16px;
-      padding: 10px 34px 10px 14px;
-      position: relative;
-      cursor: pointer;
-      backdrop-filter: blur(6px);
-      min-width: 0;
-    }
-
-    .field small {
-      display: block;
-      font-size: 12px;
-      opacity: .85;
-      font-weight: 600;
-    }
-
-    .field b {
-      display: block;
-      font-size: 16px;
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .field i {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-60%);
-      font-style: normal;
-      font-size: 20px;
-      opacity: .9;
-    }
-
-    .field.has {
-      background: #fff;
-      color: #0F1B3D;
-      border-color: #fff;
-    }
-
-    .field.has small {
-      opacity: .65;
-    }
-
-    .field:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    .sheet {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      visibility: hidden;
-      transition: visibility .3s;
-    }
-
-    .sheet.open {
-      visibility: visible;
-    }
-
-    .sh-bg {
-      position: absolute;
-      inset: 0;
-      background: rgba(11, 18, 38, .6);
-      backdrop-filter: blur(6px);
-      opacity: 0;
-      transition: opacity .25s;
-    }
-
-    .sheet.open .sh-bg {
-      opacity: 1;
-    }
-
-    .sh-panel {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      max-width: 720px;
-      margin: 0 auto;
-      max-height: 75dvh;
-      overflow: auto;
-      background: var(--surface);
-      border-radius: 28px 28px 0 0;
-      padding: 10px 18px calc(20px + env(safe-area-inset-bottom));
-      transform: translateY(100%);
-      transition: transform .3s cubic-bezier(.2, .8, .2, 1);
-    }
-
-    .sheet.open .sh-panel {
-      transform: none;
-    }
-
-    .sh-grab {
-      width: 42px;
-      height: 5px;
-      border-radius: 9px;
-      background: var(--line);
-      margin: 4px auto 12px;
-    }
-
-    .sh-panel h3 {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .opt {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px;
-      margin-bottom: 8px;
-      border-radius: 18px;
-      border: 2px solid var(--line);
-      background: var(--bg);
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .opt.sel {
-      border-color: var(--blue);
-      background: var(--soft);
-    }
-
-    .bd {
-      flex: none;
-      min-width: 50px;
-      height: 50px;
-      padding: 0 8px;
-      border-radius: 16px;
-      color: #fff;
-      font-weight: 800;
-      font-size: 14px;
-      display: grid;
-      place-items: center;
-    }
-
-    .ol {
-      flex: 1;
-      font-weight: 700;
-      font-size: 17px;
-    }
-
-    .ck {
-      color: var(--blue);
-      font-weight: 800;
-      font-size: 20px;
-      visibility: hidden;
-    }
-
-    .opt.sel .ck {
-      visibility: visible;
-    }
-
-    .about {
-      margin: 24px 0 8px;
-    }
-
-    .about h2 {
-      font-size: 21px;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    .abox {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      overflow: hidden;
-    }
-
-    .ahead {
-      padding: 16px;
-      background: var(--soft);
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .ahead .lg {
-      width: 48px;
-      height: 48px;
-      border-radius: 15px;
-      background: var(--tk);
-      color: var(--sun);
-      display: grid;
-      place-items: center;
-      font-size: 24px;
-      flex: none;
-    }
-
-    .ahead b {
-      font-family: "Bricolage Grotesque", sans-serif;
-      font-size: 19px;
-      display: block;
-      letter-spacing: -.02em;
-    }
-
-    .ahead span {
-      color: var(--muted);
-      font-size: 13.5px;
-    }
-
-    .arow {
-      display: flex;
-      gap: 12px;
-      padding: 12px 16px;
-      border-top: 1px solid var(--line);
-      font-size: 14.5px;
-      line-height: 1.5;
-    }
-
-    .arow i {
-      font-style: normal;
-      flex: none;
-      width: 26px;
-      text-align: center;
-      font-size: 17px;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    :root {
-      --dot: rgba(43, 80, 245, .10);
-    }
-
-    [data-theme="dark"] {
-      --dot: rgba(255, 255, 255, .05);
-    }
-
-    body {
-      background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
-      background-size: 22px 22px;
-    }
-
-    .ibtn {
-      height: 38px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--sun);
-      color: #0F1B3D;
-      font-weight: 800;
-      font-size: 13px;
-      padding: 0 12px;
-      cursor: pointer;
-    }
-
-    .banner {
-      position: relative;
-      overflow: hidden;
-      color: #fff;
-      border-radius: 0 0 34px 34px;
-      padding: 18px 18px 80px;
-      background: radial-gradient(520px 240px at 90% -10%, rgba(255, 183, 3, .55), transparent 60%), linear-gradient(160deg, #0F1B3D 0%, #1D3BB8 62%, #2B50F5 100%);
-    }
-
-    .banner-in {
-      max-width: 720px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .banner small {
-      opacity: .9;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .banner h1 {
-      font-size: 31px;
-      line-height: 1.08;
-      font-weight: 800;
-      margin: 6px 0 6px;
-    }
-
-    .banner p {
-      margin: 0;
-      opacity: .92;
-      font-size: 14.5px;
-    }
-
-    .banner .mot {
-      color: var(--sun);
-      font-weight: 700;
-      margin-top: 6px;
-    }
-
-    .banner .sky {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 96px;
-    }
-
-    .pickhero {
-      margin-top: -40px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .pk-sub {
-      margin: -6px 0 12px;
-      font-size: 13.5px;
-      opacity: .9;
-      position: relative;
-    }
-
-    .nextbar {
-      background: var(--soft);
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-weight: 700;
-      margin: 0 0 10px;
-    }
-
-    .tag.st-now {
-      background: var(--mint);
-      color: #fff;
-    }
-
-    .tag.st-next {
-      background: var(--sun);
-      color: #0F1B3D;
-    }
-
-    .tag.st-later {
-      background: var(--soft);
-      color: var(--ink);
-    }
-
-    .tag.st-done {
-      background: var(--line);
-      color: var(--muted);
-    }
-
-    .item.dim {
-      opacity: .55;
-    }
-
-    .acts2 {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .mini {
-      border-radius: 10px;
-      padding: 5px 12px;
-      font-size: 13px;
-      font-weight: 700;
-      background: var(--soft);
-      color: var(--ink);
-      border: 0;
-      cursor: pointer;
-    }
-
-    .mini.wa {
-      background: #25D366;
-      color: #073B1C;
-    }
-
-
-
-    .banner {
-      padding: 0;
-      background: #0F1B3D;
-      perspective: 1000px;
-      border-radius: 0 0 34px 34px;
-      box-shadow: 0 20px 40px rgba(15, 27, 61, .35);
-    }
-
-    .b3d {
-      position: relative;
-      min-height: 400px;
-      transform-style: preserve-3d;
-      transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-      transition: transform .18s ease-out;
-    }
-
-    .bphoto {
-      position: absolute;
-      left: -14%;
-      right: -14%;
-      bottom: -5%;
-      height: 66%;
-      background-size: cover;
-      background-position: center 28%;
-      transform: translate3d(var(--px, 0px), calc(var(--py, 0px) + var(--sy, 0px)), 0) scale(1.06);
-      transition: transform .18s ease-out;
-      will-change: transform;
-    }
-
-    .bfade {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      transform: translateZ(2px);
-      background: linear-gradient(180deg, #0F1B3D 0%, #0F1B3D 36%, rgba(15, 27, 61, .72) 46%, rgba(15, 27, 61, .25) 60%, rgba(15, 27, 61, 0) 74%), linear-gradient(0deg, rgba(15, 27, 61, .55), rgba(15, 27, 61, 0) 32%);
-    }
-
-    .banner-in {
-      padding: 20px 18px 0;
-      width: 100%;
-      z-index: 2;
-      transform: translate3d(calc(var(--px, 0px) * -.6), calc(var(--py, 0px) * -.6), 40px);
-      transition: transform .18s ease-out;
-      text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
-    }
-
-    .pickhero {
-      margin-top: 24px;
-    }
-
-    @media (min-width:700px) {
-      .b3d {
-        min-height: 540px;
-      }
-
-      .bphoto {
-        height: 76%;
-        background-position: center 6%;
-      }
-
-      .banner h1 {
-        font-size: 40px;
-      }
-
-      .bfade {
-        background: linear-gradient(180deg, #0F1B3D 0%, #0F1B3D 28%, rgba(15, 27, 61, .7) 38%, rgba(15, 27, 61, .2) 52%, rgba(15, 27, 61, 0) 66%), linear-gradient(0deg, rgba(15, 27, 61, .5), rgba(15, 27, 61, 0) 30%);
-      }
-    }
-
-    .field b {
-      white-space: normal;
-      line-height: 1.2;
-      font-size: 15px;
-    }
-
-    .field:not(.has) b {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .b3d {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      min-height: 340px;
-    }
-
-    .bphoto {
-      top: -3%;
-      bottom: -3%;
-      height: auto;
-      left: -6%;
-      right: -6%;
-      background-position: center 38%;
-    }
-
-    .bfade {
-      background: linear-gradient(180deg, rgba(15, 27, 61, .30) 0%, rgba(15, 27, 61, 0) 26%, rgba(15, 27, 61, .50) 60%, rgba(15, 27, 61, .93) 100%);
-    }
-
-    .banner-in {
-      padding: 0 18px 24px;
-    }
-
-    @media (min-width:700px) {
-      .b3d {
-        min-height: 520px;
-      }
-
-      .bphoto {
-        height: auto;
-        background-position: center 30%;
-      }
-
-      .bfade {
-        background: linear-gradient(180deg, rgba(15, 27, 61, .30) 0%, rgba(15, 27, 61, 0) 26%, rgba(15, 27, 61, .45) 62%, rgba(15, 27, 61, .92) 100%);
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>College Assistant</title>
+<meta name="theme-color" content="#0F1B3D">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="College">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root { --bg:#F2F5FB; --surface:#fff; --ink:#0F1B3D; --muted:#5B6785; --line:#E1E7F2; --blue:#2B50F5; --sun:#FFB703; --coral:#FF5D5D; --mint:#0EA678; --violet:#7A4DFF; --soft:#EAF0FF; --tk:#0F1B3D; }
+[data-theme="dark"] { --tk:#24347A; --bg:#0B1226; --surface:#141D38; --ink:#EEF2FF; --muted:#9AA7C7; --line:#243157; --soft:#1B2750; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-padding-top: 70px; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.45; padding-bottom:calc(86px + env(safe-area-inset-bottom)); }
+h1,h2,h3,.disp { font-family:"Bricolage Grotesque", system-ui, sans-serif; letter-spacing:-.02em; margin:0; }
+a { color:inherit; text-decoration:none; } button,input,select { font:inherit; color:inherit; }
+:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+
+.top { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px);
+       padding:calc(10px + env(safe-area-inset-top)) 18px 10px; display:flex; align-items:center; gap:10px; }
+.logo { width:34px; height:34px; border-radius:11px; background:var(--tk); color:var(--sun); display:grid; place-items:center; font-size:18px; }
+.top b { font-family:"Bricolage Grotesque",sans-serif; font-size:18px; flex:1; letter-spacing:-.02em; }
+.icon-btn { width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:var(--surface); cursor:pointer; font-size:17px; }
+main { max-width:720px; margin:0 auto; padding:6px 18px 0; }
+
+.hello { font-size:30px; font-weight:800; line-height:1.1; margin:10px 0 4px; }
+.sub { color:var(--muted); margin:0 0 16px; }
+.search { width:100%; padding:14px 16px 14px 44px; border:1px solid var(--line); border-radius:16px; background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%238A94B0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='9' cy='9' r='6'/%3E%3Cpath d='M14 14l4 4'/%3E%3C/svg%3E") 14px 50% no-repeat; }
+
+/* the memorable thing: next exam as a ticket */
+.ticket { display:flex; margin:18px 0 22px; background:var(--tk); color:#fff; border-radius:22px; position:relative; overflow:hidden; animation:slide .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes slide { from { opacity:0; transform:translateY(14px) rotate(-.6deg) } to { opacity:1; transform:none } }
+.stub { width:104px; padding:18px 8px; text-align:center; background:var(--sun); color:#0F1B3D; display:flex; flex-direction:column; justify-content:center; flex:none; }
+.stub .n { font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:46px; line-height:.95; }
+.stub .m { font-weight:700; font-size:14px; margin-top:4px; }
+.perf { width:0; border-left:3px dotted rgba(255,255,255,.35); margin:14px 0; position:relative; }
+.perf::before,.perf::after { content:""; position:absolute; left:-12px; width:22px; height:22px; border-radius:50%; background:var(--bg); }
+.perf::before { top:-25px } .perf::after { bottom:-25px }
+.tbody { padding:16px 18px; min-width:0; }
+.tbody small { color:#AFC0FF; font-size:13px; }
+.tbody h3 { font-size:22px; line-height:1.15; margin:4px 0 8px; }
+.tmeta { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:14px; color:#DCE4FF; }
+.when { display:inline-block; margin-top:10px; background:var(--coral); color:#fff; font-weight:700; border-radius:99px; padding:3px 12px; font-size:13px; }
+.ticket.empty { background:var(--soft); color:var(--ink); padding:20px; display:block; }
+
+.tiles { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:26px; }
+.tile { flex:0 0 calc((100% - 24px) / 3); background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:14px 8px 12px; text-align:center; font-weight:600; font-size:13.5px; }
+.tile i { display:grid; place-items:center; width:46px; height:46px; margin:0 auto 8px; border-radius:15px; font-style:normal; font-size:22px; color:#fff; }
+.sec { display:flex; justify-content:space-between; align-items:baseline; margin:4px 0 8px; }
+.sec h2 { font-size:21px; font-weight:800; } .sec a { color:var(--blue); font-weight:600; font-size:14px; }
+.ptitle { font-size:30px; font-weight:800; margin:12px 0 2px; }
+
+.pills { display:flex; gap:8px; overflow-x:auto; padding:4px 0 12px; scrollbar-width:none; }
+.pills::-webkit-scrollbar { display:none; }
+.pill { flex:none; border:1px solid var(--line); background:var(--surface); border-radius:99px; padding:7px 15px; font-size:14px; cursor:pointer; }
+.pill.on { background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600; }
+[data-theme="dark"] .pill.on { background:var(--sun); color:#0F1B3D; border-color:var(--sun); }
+
+.list { background:var(--surface); border:1px solid var(--line); border-radius:20px; overflow:hidden; }
+.item { display:flex; gap:14px; padding:14px 16px; border-bottom:1px solid var(--line); }
+.item:last-child { border-bottom:0; }
+.date { flex:none; width:50px; text-align:center; border-radius:14px; background:var(--soft); padding:6px 0; height:fit-content; }
+.date b { display:block; font-family:"Bricolage Grotesque",sans-serif; font-size:21px; line-height:1; } .date span { font-size:12px; color:var(--muted); font-weight:600; }
+.item h3 { font-size:16.5px; font-weight:600; margin:0 0 3px; font-family:system-ui,sans-serif; letter-spacing:0; }
+.item p { margin:0; color:var(--muted); font-size:14px; }
+.item .body { min-width:0; flex:1; }
+.tag { display:inline-block; font-size:12px; font-weight:700; border-radius:8px; padding:2px 9px; margin-top:6px; }
+.new { background:var(--coral); color:#fff; font-size:11px; font-weight:800; border-radius:6px; padding:2px 7px; margin-left:6px; vertical-align:middle; }
+.room { flex:none; align-self:center; background:var(--ink); color:var(--sun); font-weight:800; border-radius:12px; padding:8px 12px; font-size:14px; text-align:center; }
+[data-theme="dark"] .room { background:var(--sun); color:#0F1B3D; }
+.dot { color:var(--muted); font-size:13px; }
+.link { display:inline-block; margin-top:8px; color:var(--blue); font-weight:600; font-size:14px; }
+
+.dept { padding:16px; border-bottom:1px solid var(--line); } .dept:last-child { border-bottom:0; }
+.dept h3 { font-size:19px; font-weight:800; display:flex; gap:10px; align-items:center; }
+.dept .em { width:38px; height:38px; border-radius:12px; background:var(--soft); display:grid; place-items:center; font-size:20px; }
+.dept p { margin:6px 0 0; font-size:14.5px; } .dept .mut { color:var(--muted); }
+.acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.btn { border-radius:12px; padding:9px 16px; font-weight:700; font-size:14px; background:var(--ink); color:var(--bg); }
+.btn.alt { background:var(--soft); color:var(--ink); }
+details { border-bottom:1px solid var(--line); padding:14px 16px; } details:last-child { border-bottom:0; }
+summary { cursor:pointer; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:12px; }
+summary::after { content:"+"; font-size:22px; line-height:1; color:var(--blue); transition:transform .2s; } details[open] summary::after { transform:rotate(45deg); }
+details p { margin:10px 0 0; color:var(--muted); }
+
+.empty-msg { text-align:center; color:var(--muted); padding:34px 10px; }
+.err { background:#FFECEC; color:#8A1C1C; border-radius:16px; padding:16px; }
+.sk { height:76px; border-radius:18px; margin-bottom:12px; background:linear-gradient(90deg,var(--line),var(--soft),var(--line)); background-size:200% 100%; animation:sh 1.2s infinite; }
+@keyframes sh { to { background-position:-200% 0 } }
+
+.fab { position:fixed; right:16px; bottom:calc(88px + env(safe-area-inset-bottom)); z-index:30; color:#fff; border-radius:99px; padding:13px 20px 13px 16px;
+       font-weight:800; font-size:15px; display:flex; gap:8px; align-items:center; background:linear-gradient(135deg,#2B50F5,#7A4DFF);
+       box-shadow:0 8px 24px rgba(79,70,229,.45); animation:glow 2.4s ease-in-out infinite; }
+.fab .sp { font-size:19px; } .fab small { background:#FFB703; color:#0F1B3D; font-size:10.5px; font-weight:800; border-radius:6px; padding:1px 6px; }
+@keyframes glow { 0%,100% { box-shadow:0 8px 24px rgba(79,70,229,.45), 0 0 0 0 rgba(122,77,255,.5) } 50% { box-shadow:0 8px 24px rgba(79,70,229,.45), 0 0 0 11px rgba(122,77,255,0) } }
+nav { position:fixed; bottom:0; left:0; right:0; z-index:25; background:var(--surface); border-top:1px solid var(--line); display:flex; justify-content:space-around;
+      padding:8px 4px calc(8px + env(safe-area-inset-bottom)); }
+nav a em { font-style:normal; } nav a { flex:1; text-align:center; font-size:11.5px; font-weight:600; color:var(--muted); padding:2px 0; }
+nav a span { display:block; width:52px; margin:0 auto 2px; padding:4px 0; border-radius:99px; font-size:19px; }
+nav a.on { color:var(--ink); } nav a.on span { background:var(--sun); }
+@media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+.pick { display:grid; grid-template-columns:1fr 1fr; gap:12px; background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:14px; margin-bottom:6px; }
+.pick label { font-size:12.5px; font-weight:700; color:var(--muted); display:block; }
+.pick select { width:100%; margin-top:6px; padding:12px 10px; border-radius:12px; border:1px solid var(--line); background:var(--bg); font-weight:600; font-size:15px; }
+.pick select:disabled { opacity:.5; }
+.day { padding:9px 16px; background:var(--soft); font-weight:800; font-family:"Bricolage Grotesque",sans-serif; display:flex; gap:8px; align-items:center; }
+.pickhero { position:relative; overflow:hidden; border-radius:26px; padding:18px; margin-bottom:6px; color:#fff;
+  background:radial-gradient(circle at 88% 0%, rgba(255,183,3,.55), transparent 45%), linear-gradient(135deg,#17236B,#2B50F5 62%,#7A4DFF); box-shadow:0 14px 30px rgba(43,80,245,.28); }
+.pickhero::after { content:"🎓"; position:absolute; right:-6px; top:-16px; font-size:96px; opacity:.16; transform:rotate(14deg); pointer-events:none; }
+.pk-title { font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:22px; margin-bottom:12px; position:relative; }
+.pk-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; position:relative; z-index:1; }
+.field { text-align:left; color:#fff; background:rgba(255,255,255,.16); border:1.5px solid rgba(255,255,255,.32); border-radius:16px; padding:10px 34px 10px 14px; position:relative; cursor:pointer; backdrop-filter:blur(6px); min-width:0; }
+.field small { display:block; font-size:12px; opacity:.85; font-weight:600; }
+.field b { display:block; font-size:16px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.field i { position:absolute; right:12px; top:50%; transform:translateY(-60%); font-style:normal; font-size:20px; opacity:.9; }
+.field.has { background:#fff; color:#0F1B3D; border-color:#fff; } .field.has small { opacity:.65; }
+.field:disabled { opacity:.55; cursor:not-allowed; }
+.sheet { position:fixed; inset:0; z-index:60; visibility:hidden; transition:visibility .3s; } .sheet.open { visibility:visible; }
+.sh-bg { position:absolute; inset:0; background:rgba(11,18,38,.6); backdrop-filter:blur(6px); opacity:0; transition:opacity .25s; } .sheet.open .sh-bg { opacity:1; }
+.sh-panel { position:absolute; left:0; right:0; bottom:0; max-width:720px; margin:0 auto; max-height:75dvh; overflow:auto; background:var(--surface);
+  border-radius:28px 28px 0 0; padding:10px 18px calc(20px + env(safe-area-inset-bottom)); transform:translateY(100%); transition:transform .3s cubic-bezier(.2,.8,.2,1); }
+.sheet.open .sh-panel { transform:none; }
+.sh-grab { width:42px; height:5px; border-radius:9px; background:var(--line); margin:4px auto 12px; }
+.sh-panel h3 { font-size:22px; font-weight:800; margin-bottom:12px; }
+.opt { width:100%; display:flex; align-items:center; gap:14px; padding:12px; margin-bottom:8px; border-radius:18px; border:2px solid var(--line); background:var(--bg); cursor:pointer; text-align:left; }
+.opt.sel { border-color:var(--blue); background:var(--soft); }
+.bd { flex:none; min-width:50px; height:50px; padding:0 8px; border-radius:16px; color:#fff; font-weight:800; font-size:14px; display:grid; place-items:center; }
+.ol { flex:1; font-weight:700; font-size:17px; }
+.ck { color:var(--blue); font-weight:800; font-size:20px; visibility:hidden; } .opt.sel .ck { visibility:visible; }
+.about { margin:24px 0 8px; } .about h2 { font-size:21px; font-weight:800; margin-bottom:10px; }
+.abox { background:var(--surface); border:1px solid var(--line); border-radius:22px; overflow:hidden; }
+.ahead { padding:16px; background:var(--soft); display:flex; gap:12px; align-items:center; }
+.ahead .lg { width:48px; height:48px; border-radius:15px; background:var(--tk); color:var(--sun); display:grid; place-items:center; font-size:24px; flex:none; }
+.ahead b { font-family:"Bricolage Grotesque",sans-serif; font-size:19px; display:block; letter-spacing:-.02em; } .ahead span { color:var(--muted); font-size:13.5px; }
+.arow { display:flex; gap:12px; padding:12px 16px; border-top:1px solid var(--line); font-size:14.5px; line-height:1.5; }
+.arow i { font-style:normal; flex:none; width:26px; text-align:center; font-size:17px; }
+
+[hidden] { display:none !important; }
+:root { --dot:rgba(43,80,245,.10); } [data-theme="dark"] { --dot:rgba(255,255,255,.05); }
+body { background-image:radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0); background-size:22px 22px; }
+.ibtn { height:38px; border-radius:12px; border:1px solid var(--line); background:var(--sun); color:#0F1B3D; font-weight:800; font-size:13px; padding:0 12px; cursor:pointer; }
+.banner { position:relative; overflow:hidden; color:#fff; border-radius:0 0 34px 34px; padding:18px 18px 80px;
+  background:radial-gradient(520px 240px at 90% -10%, rgba(255,183,3,.55), transparent 60%), linear-gradient(160deg,#0F1B3D 0%,#1D3BB8 62%,#2B50F5 100%); }
+.banner-in { max-width:720px; margin:0 auto; position:relative; z-index:1; }
+.banner small { opacity:.9; font-weight:600; font-size:14px; }
+.banner h1 { font-size:31px; line-height:1.08; font-weight:800; margin:6px 0 6px; }
+.banner p { margin:0; opacity:.92; font-size:14.5px; } .banner .mot { color:var(--sun); font-weight:700; margin-top:6px; }
+.banner .sky { position:absolute; left:0; right:0; bottom:0; width:100%; height:96px; }
+.pickhero { margin-top:-40px; position:relative; z-index:2; }
+.pk-sub { margin:-6px 0 12px; font-size:13.5px; opacity:.9; position:relative; }
+.nextbar { background:var(--soft); border-radius:16px; padding:12px 14px; font-weight:700; margin:0 0 10px; }
+.tag.st-now { background:var(--mint); color:#fff; } .tag.st-next { background:var(--sun); color:#0F1B3D; } .tag.st-later { background:var(--soft); color:var(--ink); } .tag.st-done { background:var(--line); color:var(--muted); }
+.item.dim { opacity:.55; }
+.acts2 { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.mini { border-radius:10px; padding:5px 12px; font-size:13px; font-weight:700; background:var(--soft); color:var(--ink); border:0; cursor:pointer; }
+.mini.wa { background:#25D366; color:#073B1C; }
+
+
+
+.banner { padding:0; background:#0F1B3D; perspective:1000px; border-radius:0 0 34px 34px; box-shadow:0 20px 40px rgba(15,27,61,.35); }
+.b3d { position:relative; min-height:400px; transform-style:preserve-3d; transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)); transition:transform .18s ease-out; }
+.bphoto { position:absolute; left:-14%; right:-14%; bottom:-5%; height:66%; background-size:cover; background-position:center 28%;
+  transform:translate3d(var(--px,0px), calc(var(--py,0px) + var(--sy,0px)), 0) scale(1.06); transition:transform .18s ease-out; will-change:transform; }
+.bfade { position:absolute; inset:0; pointer-events:none; transform:translateZ(2px);
+  background:linear-gradient(180deg,#0F1B3D 0%,#0F1B3D 36%,rgba(15,27,61,.72) 46%,rgba(15,27,61,.25) 60%,rgba(15,27,61,0) 74%), linear-gradient(0deg,rgba(15,27,61,.55),rgba(15,27,61,0) 32%); }
+.banner-in { padding:20px 18px 0; width:100%; z-index:2; transform:translate3d(calc(var(--px,0px) * -.6), calc(var(--py,0px) * -.6), 40px); transition:transform .18s ease-out; text-shadow:0 2px 14px rgba(0,0,0,.35); }
+.pickhero { margin-top:24px; }
+@media (min-width:700px) { .b3d { min-height:540px; } .bphoto { height:76%; background-position:center 6%; } .banner h1 { font-size:40px; } .bfade { background:linear-gradient(180deg,#0F1B3D 0%,#0F1B3D 28%,rgba(15,27,61,.7) 38%,rgba(15,27,61,.2) 52%,rgba(15,27,61,0) 66%),linear-gradient(0deg,rgba(15,27,61,.5),rgba(15,27,61,0) 30%); } }
+
+.field b { white-space:normal; line-height:1.2; font-size:15px; }
+.field:not(.has) b { font-size:14px; font-weight:600; }
+.b3d { display:flex; flex-direction:column; justify-content:flex-end; min-height:340px; }
+.bphoto { top:-3%; bottom:-3%; height:auto; left:-6%; right:-6%; background-position:center 38%; }
+.bfade { background:linear-gradient(180deg,rgba(15,27,61,.30) 0%,rgba(15,27,61,0) 26%,rgba(15,27,61,.50) 60%,rgba(15,27,61,.93) 100%); }
+.banner-in { padding:0 18px 24px; }
+@media (min-width:700px) { .b3d { min-height:520px; } .bphoto { height:auto; background-position:center 30%; }
+  .bfade { background:linear-gradient(180deg,rgba(15,27,61,.30) 0%,rgba(15,27,61,0) 26%,rgba(15,27,61,.45) 62%,rgba(15,27,61,.92) 100%); } }
+
+.promo { display:flex; align-items:center; gap:14px; margin:20px 0 4px; padding:14px 16px; border-radius:20px; background:var(--surface); border:1px solid var(--line); box-shadow:0 6px 18px rgba(15,27,61,.06); }
+.promo .pi { width:46px; height:46px; border-radius:15px; background:var(--sun); display:grid; place-items:center; font-size:22px; flex:none; }
+.promo div { flex:1; min-width:0; } .promo b { display:block; font-family:"Bricolage Grotesque",sans-serif; font-size:17px; letter-spacing:-.02em; }
+.promo small { color:var(--muted); font-size:13px; } .promo i { font-style:normal; font-size:28px; color:var(--blue); }
+.campuses { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.campus { border-radius:18px; padding:14px; color:#fff; } .campus.c0 { background:linear-gradient(135deg,#1D3BB8,#2B50F5); } .campus.c1 { background:linear-gradient(135deg,#0B7A63,#0EA678); }
+.campus b { display:block; font-family:"Bricolage Grotesque",sans-serif; font-size:19px; margin-bottom:4px; } .campus span { font-size:13.5px; line-height:1.35; display:block; } .campus small { display:block; margin-top:6px; opacity:.9; }
+</style>
 </head>
-
 <body>
-  <div class="top">
-    <div class="logo">🎓</div><b>College Assistant</b>
-    <button id="install" class="ibtn" hidden>⬇ <span data-k="install">Install</span></button>
-    <button id="lang" class="icon-btn" aria-label="Language">हिं</button>
-    <button id="theme" class="icon-btn" aria-label="Switch light or dark mode">🌙</button>
-  </div>
-  <div id="hero"></div>
-  <main id="app"></main>
-  <a class="fab" href="chat.html" aria-label="Ask the AI assistant"><span class="sp">✨</span><b data-k="askAI">Ask
-      AI</b><small data-k="newTag">NEW</small></a>
-  <nav>
-    <a href="#home" data-p="home"><span>🏠</span><em data-k="home">Home</em></a>
-    <a href="#notices" data-p="notices"><span>📢</span><em data-k="notices">Notices</em></a>
-    <a href="#exams" data-p="exams"><span>📝</span><em data-k="exams">Exams</em></a>
-    <a href="#rooms" data-p="rooms"><span>🏫</span><em data-k="rooms">Rooms</em></a>
-    <a href="#departments" data-p="departments"><span>☎️</span><em data-k="offices">Offices</em></a>
-    <a href="#faqs" data-p="faqs"><span>❓</span><em data-k="faq">FAQ</em></a>
-  </nav>
-  <div id="sheet" class="sheet">
-    <div class="sh-bg"></div>
-    <div class="sh-panel" role="dialog" aria-modal="true" aria-labelledby="shTitle">
-      <div class="sh-grab"></div>
-      <h3 id="shTitle"></h3>
-      <div id="shList"></div>
-    </div>
-  </div>
-  <script src="config.js"></script>
-  <script>
-    // ====== SUPABASE (put your key once in config.js, or paste it here) ======
-    const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
-    const SUPABASE_KEY = window.CA_KEY || "sb_publishable_xInsvmdM6kVMcQOa234ciA_rzhl8wTU"; // starts with sb_publishable_
-    // =========================================================================
+<div class="top"><div class="logo">🎓</div><b>College Assistant</b>
+  <button id="install" class="ibtn" hidden>⬇ <span data-k="install">Install</span></button>
+  <button id="lang" class="icon-btn" aria-label="Language">हिं</button>
+  <button id="theme" class="icon-btn" aria-label="Switch light or dark mode">🌙</button></div>
+<div id="hero"></div>
+<main id="app"></main>
+<a class="fab" href="chat.html" aria-label="Ask the AI assistant"><span class="sp">✨</span><b data-k="askAI">Ask AI</b><small data-k="newTag">NEW</small></a>
+<nav>
+  <a href="#home" data-p="home"><span>🏠</span><em data-k="home">Home</em></a>
+  <a href="#notices" data-p="notices"><span>📢</span><em data-k="notices">Notices</em></a>
+  <a href="#exams" data-p="exams"><span>📝</span><em data-k="exams">Exams</em></a>
+  <a href="#rooms" data-p="rooms"><span>🏫</span><em data-k="rooms">Rooms</em></a>
+  <a href="#departments" data-p="departments"><span>☎️</span><em data-k="offices">Offices</em></a>
+  <a href="#faqs" data-p="faqs"><span>❓</span><em data-k="faq">FAQ</em></a>
+</nav>
+<div id="sheet" class="sheet"><div class="sh-bg"></div>
+  <div class="sh-panel" role="dialog" aria-modal="true" aria-labelledby="shTitle"><div class="sh-grab"></div><h3 id="shTitle"></h3><div id="shList"></div></div></div>
+<script src="config.js"></script>
+<script>
+// ====== SUPABASE (put your key once in config.js, or paste it here) ======
+const SUPABASE_URL = "https://hfrtayjeodtlmfllvkuu.supabase.co";
+const SUPABASE_KEY = window.CA_KEY || "PASTE_YOUR_PUBLISHABLE_KEY_HERE"; // starts with sb_publishable_
+// =========================================================================
 
-    // ====== EDIT YOUR COLLEGE DETAILS HERE (shown in the banner and "About our college") ======
-    const COLLEGE = {
-      name: {en: "Sanskriti University", hi: "संस्कृति विश्वविद्यालय"},
-      place: {en: "Mathura, Uttar Pradesh", hi: "मथुरा, उत्तर प्रदेश"},
-      motto: "For Excellence in Life",
-      lines: [
-        ["🏛️", {en: "A private university in Mathura, Uttar Pradesh, established in 2016.", hi: "मथुरा, उत्तर प्रदेश में स्थित एक निजी विश्वविद्यालय, जिसकी स्थापना 2016 में हुई।"}],
-        ["✅", {en: "Recognised by the UGC and a member of the Association of Indian Universities.", hi: "यूजीसी (UGC) से मान्यता प्राप्त और एसोसिएशन ऑफ इंडियन यूनिवर्सिटीज़ का सदस्य।"}],
-        ["🌳", {en: "A green campus of more than 40 acres at Chhata, on the Mathura–Delhi Highway (NH-19).", hi: "मथुरा–दिल्ली हाईवे (NH-19) पर छाता में 40 एकड़ से अधिक में फैला हरा-भरा परिसर।"}],
-        ["🎓", {en: "Undergraduate, postgraduate and doctoral programmes, including B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA and PhD.", hi: "स्नातक, स्नातकोत्तर और डॉक्टरेट कार्यक्रम, जिनमें B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA और PhD शामिल हैं।"}],
-        ["📚", {en: "A library, computer labs, a seminar hall and a centre of excellence in robotics and automation.", hi: "पुस्तकालय, कंप्यूटर लैब, सेमिनार हॉल और रोबोटिक्स व ऑटोमेशन का उत्कृष्टता केंद्र।"}],
-        ["💡", {en: "Its motto is “For Excellence in Life”.", hi: "इसका आदर्श वाक्य है “For Excellence in Life”।"}],
-        ["📱", {en: "This app brings notices, exam dates, timetables and office contacts together in one place.", hi: "यह ऐप सूचनाएँ, परीक्षा तिथियाँ, समय-सारणी और कार्यालय संपर्क एक ही जगह उपलब्ध कराता है।"}],
-        ["📞", {en: "For anything not shown here, visit the Examination Cell or Admission Cell, or ask the AI assistant.", hi: "यहाँ न मिलने वाली जानकारी के लिए परीक्षा प्रकोष्ठ या प्रवेश प्रकोष्ठ जाएँ, या AI सहायक से पूछें।"}]
-      ]
-    };
-    // ==========================================================================================
+// ====== EDIT YOUR COLLEGE DETAILS HERE (shown in the banner and "About our college") ======
+const COLLEGE = {
+  name: { en: "Sanskriti University", hi: "संस्कृति विश्वविद्यालय" },
+  place: { en: "Mathura, Uttar Pradesh", hi: "मथुरा, उत्तर प्रदेश" },
+  motto: "For Excellence in Life",
+  campuses: [   // add an "address" line to each if you want it shown
+    { key: "Campus 1", en: "B.Tech, Agriculture, BBA and BCA", hi: "B.Tech, कृषि, BBA और BCA", address: "" },
+    { key: "Campus 2", en: "Forensic and medical course departments", hi: "फॉरेंसिक और मेडिकल पाठ्यक्रम विभाग", address: "" }
+  ],
+  lines: [
+    ["🏛️", { en: "A private university in Mathura, Uttar Pradesh, established in 2016.", hi: "मथुरा, उत्तर प्रदेश में स्थित एक निजी विश्वविद्यालय, जिसकी स्थापना 2016 में हुई।" }],
+    ["✅", { en: "Recognised by the UGC and a member of the Association of Indian Universities.", hi: "यूजीसी (UGC) से मान्यता प्राप्त और एसोसिएशन ऑफ इंडियन यूनिवर्सिटीज़ का सदस्य।" }],
+    ["🌳", { en: "The main campus covers more than 40 acres at Chhata, on the Mathura–Delhi Highway (NH-19).", hi: "मुख्य परिसर मथुरा–दिल्ली हाईवे (NH-19) पर छाता में 40 एकड़ से अधिक में फैला है।" }],
+    ["🎓", { en: "Undergraduate, postgraduate and doctoral programmes, including B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA and PhD.", hi: "स्नातक, स्नातकोत्तर और डॉक्टरेट कार्यक्रम, जिनमें B.Tech, BCA, BBA, B.Com, B.Ed, B.Sc, M.Tech, MBA और PhD शामिल हैं।" }],
+    ["📚", { en: "A library, computer labs, a seminar hall and a centre of excellence in robotics and automation.", hi: "पुस्तकालय, कंप्यूटर लैब, सेमिनार हॉल और रोबोटिक्स व ऑटोमेशन का उत्कृष्टता केंद्र।" }],
+    ["🏫", { en: "Two campuses: Campus 1 for B.Tech, Agriculture, BBA and BCA; Campus 2 for forensic and medical departments.", hi: "दो कैम्पस: कैम्पस 1 में B.Tech, कृषि, BBA और BCA; कैम्पस 2 में फॉरेंसिक और मेडिकल विभाग।" }],
+    ["📱", { en: "This app brings notices, exam dates, timetables and office contacts together in one place.", hi: "यह ऐप सूचनाएँ, परीक्षा तिथियाँ, समय-सारणी और कार्यालय संपर्क एक ही जगह उपलब्ध कराता है।" }],
+    ["📞", { en: "For anything not shown here, visit the Examination Cell or Admission Cell, or ask the AI assistant.", hi: "यहाँ न मिलने वाली जानकारी के लिए परीक्षा प्रकोष्ठ या प्रवेश प्रकोष्ठ जाएँ, या AI सहायक से पूछें।" }]
+  ]
+};
+// ==========================================================================================
 
-    const I18N = {
-      en: {
-        home: "Home", notices: "Notices", exams: "Exams", rooms: "Rooms", offices: "Offices", faq: "FAQ", gm: "Good morning", ga: "Good afternoon", ge: "Good evening", welcome: "Welcome to",
-        subPick: "Choose your course to see your timetable, exams and notices.", pickClass: "Pick your class", course: "Course", semester: "Semester", choose: "Choose",
-        chooseCourse: "Choose your course", chooseSem: "Choose your year and semester", year: "Year / Semester", selectCourse: "Select your course", selectYear: "Select your year", yearSem: "Year {0} · Semester {1}", resume: "Continue with {0} · {1}", semN: "Semester {0}", semShort: "Sem {0}", nothing: "Nothing to choose yet.",
-        emptyTitle1: "Select your course and year", emptyTitle2: "Now select your year", emptyBody: "Your timetable, exam dates and notices will appear right here.",
-        todayClasses: "Today's classes", nextClassIn: "Next class in {0}", classNow: "Class in progress", noMore: "No more classes today", noToday: "No classes today", nextOn: "Next: {0}, {1} · {2}",
-        stDone: "Done", stNow: "Now", stNext: "Next", stLater: "Later", min: "{0} min", hr: "{0} h {1} min",
-        nextExam: "Your next exam", noExams: "No upcoming exams", noExamsSub: "New dates for {0} Sem {1} will show up here.",
-        timetable: "Class timetable", examDates: "Exam dates", noticesForYou: "Notices for you", seeAll: "See all", noClasses: "No classes added yet for this semester.", noExamsYet: "No exams added yet for this semester.", noNotices: "No notices right now.",
-        relDone: "Done", relToday: "Today", relTomorrow: "Tomorrow", relIn: "In {0} days", about: "About our college",
-        noticesTitle: "Notices", latestFirst: "Latest first", all: "All", noNoticesFound: "No notices found.",
-        examSchedule: "Exam schedule", pickCS: "Pick your course and semester", allCourses: "All courses", allSems: "All semesters", noExamsFound: "No exams found.",
-        findRoom: "Find my classroom", pickClassDay: "Choose your class and day", allClasses: "All classes", allDays: "All days", noClassesFound: "No classes found.",
-        officesTitle: "Offices and departments", officesSub: "Where to go and when", call: "Call", email: "Email", quick: "Quick answers", tapQ: "Tap a question",
-        share: "Share", addCal: "Add to calendar", openPdf: "Open PDF", newTag: "NEW", askAI: "Ask AI", loadErr: "Could not load data", checkNet: "Check your internet connection and try again.",
-        offlineNote: "Showing saved data (offline)", install: "Install", iosTip: "To install: tap Share, then “Add to Home Screen”."
-      },
-      hi: {
-        home: "होम", notices: "सूचनाएँ", exams: "परीक्षा", rooms: "कक्षाएँ", offices: "कार्यालय", faq: "प्रश्न", gm: "सुप्रभात", ga: "नमस्कार", ge: "शुभ संध्या", welcome: "आपका स्वागत है",
-        subPick: "अपनी समय-सारणी, परीक्षा और सूचनाएँ देखने के लिए कोर्स चुनें।", pickClass: "अपनी कक्षा चुनें", course: "कोर्स", semester: "सेमेस्टर", choose: "चुनें",
-        chooseCourse: "अपना कोर्स चुनें", chooseSem: "अपना वर्ष और सेमेस्टर चुनें", year: "वर्ष / सेमेस्टर", selectCourse: "अपना कोर्स चुनें", selectYear: "अपना वर्ष चुनें", yearSem: "वर्ष {0} · सेमेस्टर {1}", resume: "{0} · {1} के साथ जारी रखें", semN: "सेमेस्टर {0}", semShort: "सेम {0}", nothing: "अभी चुनने के लिए कुछ नहीं है।",
-        emptyTitle1: "अपना कोर्स और वर्ष चुनें", emptyTitle2: "अब अपना वर्ष चुनें", emptyBody: "आपकी समय-सारणी, परीक्षा तिथियाँ और सूचनाएँ यहीं दिखेंगी।",
-        todayClasses: "आज की कक्षाएँ", nextClassIn: "अगली कक्षा {0} में", classNow: "कक्षा चल रही है", noMore: "आज और कक्षाएँ नहीं हैं", noToday: "आज कोई कक्षा नहीं", nextOn: "अगली: {0}, {1} · {2}",
-        stDone: "समाप्त", stNow: "अभी", stNext: "अगली", stLater: "बाद में", min: "{0} मिनट", hr: "{0} घंटा {1} मिनट",
-        nextExam: "आपकी अगली परीक्षा", noExams: "कोई आने वाली परीक्षा नहीं", noExamsSub: "{0} सेम {1} की नई तिथियाँ यहाँ दिखेंगी।",
-        timetable: "कक्षा समय-सारणी", examDates: "परीक्षा तिथियाँ", noticesForYou: "आपके लिए सूचनाएँ", seeAll: "सब देखें", noClasses: "इस सेमेस्टर के लिए अभी कक्षाएँ नहीं जोड़ी गई हैं।", noExamsYet: "इस सेमेस्टर के लिए अभी परीक्षाएँ नहीं जोड़ी गई हैं।", noNotices: "अभी कोई सूचना नहीं।",
-        relDone: "हो चुकी", relToday: "आज", relTomorrow: "कल", relIn: "{0} दिन में", about: "हमारे कॉलेज के बारे में",
-        noticesTitle: "सूचनाएँ", latestFirst: "नवीनतम पहले", all: "सभी", noNoticesFound: "कोई सूचना नहीं मिली।",
-        examSchedule: "परीक्षा कार्यक्रम", pickCS: "अपना कोर्स और सेमेस्टर चुनें", allCourses: "सभी कोर्स", allSems: "सभी सेमेस्टर", noExamsFound: "कोई परीक्षा नहीं मिली।",
-        findRoom: "मेरी कक्षा खोजें", pickClassDay: "अपनी कक्षा और दिन चुनें", allClasses: "सभी कक्षाएँ", allDays: "सभी दिन", noClassesFound: "कोई कक्षा नहीं मिली।",
-        officesTitle: "कार्यालय और विभाग", officesSub: "कहाँ जाना है और कब", call: "कॉल", email: "ईमेल", quick: "त्वरित उत्तर", tapQ: "प्रश्न पर टैप करें",
-        share: "शेयर", addCal: "कैलेंडर में जोड़ें", openPdf: "PDF खोलें", newTag: "नया", askAI: "AI से पूछें", loadErr: "डेटा लोड नहीं हो सका", checkNet: "इंटरनेट जाँचें और फिर कोशिश करें।",
-        offlineNote: "सहेजा हुआ डेटा दिख रहा है (ऑफ़लाइन)", install: "इंस्टॉल", iosTip: "इंस्टॉल करने के लिए: शेयर दबाएँ, फिर “Add to Home Screen”।"
-      }
-    };
-    const HI_DAYS = {Monday: "सोमवार", Tuesday: "मंगलवार", Wednesday: "बुधवार", Thursday: "गुरुवार", Friday: "शुक्रवार", Saturday: "शनिवार", Sunday: "रविवार"};
-    let LANG = "en"; try {LANG = localStorage.getItem("ca_lang") === "hi" ? "hi" : "en";} catch (e) { }
-    const t = (k, ...a) => {let s = I18N[LANG][k] ?? I18N.en[k] ?? k; a.forEach((v, i) => {s = s.replace("{" + i + "}", v);}); return s;};
-    const L = o => (o && (o[LANG] || o.en)) || "";
-    const dayName = d => {const k = String(d).trim(); const c = k.charAt(0).toUpperCase() + k.slice(1).toLowerCase(); return LANG === "hi" ? (HI_DAYS[c] || k) : k;};
+const I18N = {
+  en: { home:"Home", notices:"Notices", exams:"Exams", rooms:"Rooms", offices:"Offices", faq:"FAQ", gm:"Good morning", ga:"Good afternoon", ge:"Good evening", welcome:"Welcome to",
+    subPick:"Choose your course to see your timetable, exams and notices.", pickClass:"Pick your class", course:"Course", semester:"Semester", choose:"Choose",
+    chooseCourse:"Choose your course", chooseSem:"Choose your year and semester", year:"Year / Semester", selectCourse:"Select your course", selectYear:"Select your year", yearSem:"Year {0} · Semester {1}", resume:"Continue with {0} · {1}", semN:"Semester {0}", semShort:"Sem {0}", nothing:"Nothing to choose yet.",
+    emptyTitle1:"Select your course and year", emptyTitle2:"Now select your year", emptyBody:"Your timetable, exam dates and notices will appear right here.",
+    todayClasses:"Today's classes", nextClassIn:"Next class in {0}", classNow:"Class in progress", noMore:"No more classes today", noToday:"No classes today", nextOn:"Next: {0}, {1} · {2}",
+    stDone:"Done", stNow:"Now", stNext:"Next", stLater:"Later", min:"{0} min", hr:"{0} h {1} min",
+    nextExam:"Your next exam", noExams:"No upcoming exams", noExamsSub:"New dates for {0} Sem {1} will show up here.",
+    timetable:"Class timetable", examDates:"Exam dates", noticesForYou:"Notices for you", seeAll:"See all", noClasses:"No classes added yet for this semester.", noExamsYet:"No exams added yet for this semester.", noNotices:"No notices right now.",
+    relDone:"Done", relToday:"Today", relTomorrow:"Tomorrow", relIn:"In {0} days", about:"About our college",
+    noticesTitle:"Notices", latestFirst:"Latest first", all:"All", noNoticesFound:"No notices found.",
+    examSchedule:"Exam schedule", pickCS:"Pick your course and semester", allCourses:"All courses", allSems:"All semesters", noExamsFound:"No exams found.",
+    findRoom:"Find my classroom", pickClassDay:"Choose your class and day", allClasses:"All classes", allDays:"All days", noClassesFound:"No classes found.",
+    officesTitle:"Offices and departments", officesSub:"Where to go and when", call:"Call", email:"Email", quick:"Quick answers", tapQ:"Tap a question",
+    share:"Share", addCal:"Add to calendar", openPdf:"Open PDF", newTag:"NEW", askAI:"Ask AI", loadErr:"Could not load data", checkNet:"Check your internet connection and try again.",
+    coursesTitle:"Courses we offer", coursesSub:"Undergraduate programmes and campuses", nCourses:"{0} courses", eligibility:"Eligibility", askAdmission:"Contact the Admission Cell", noPrograms:"No programmes found.", contactAdm:"Contact Admission Cell", coursesPromo:"Courses and campuses", coursesPromoSub:"See eligibility for every programme", coursesErr:"Courses are not set up yet.",
+    offlineNote:"Showing saved data (offline)", install:"Install", iosTip:"To install: tap Share, then “Add to Home Screen”." },
+  hi: { home:"होम", notices:"सूचनाएँ", exams:"परीक्षा", rooms:"कक्षाएँ", offices:"कार्यालय", faq:"प्रश्न", gm:"सुप्रभात", ga:"नमस्कार", ge:"शुभ संध्या", welcome:"आपका स्वागत है",
+    subPick:"अपनी समय-सारणी, परीक्षा और सूचनाएँ देखने के लिए कोर्स चुनें।", pickClass:"अपनी कक्षा चुनें", course:"कोर्स", semester:"सेमेस्टर", choose:"चुनें",
+    chooseCourse:"अपना कोर्स चुनें", chooseSem:"अपना वर्ष और सेमेस्टर चुनें", year:"वर्ष / सेमेस्टर", selectCourse:"अपना कोर्स चुनें", selectYear:"अपना वर्ष चुनें", yearSem:"वर्ष {0} · सेमेस्टर {1}", resume:"{0} · {1} के साथ जारी रखें", semN:"सेमेस्टर {0}", semShort:"सेम {0}", nothing:"अभी चुनने के लिए कुछ नहीं है।",
+    emptyTitle1:"अपना कोर्स और वर्ष चुनें", emptyTitle2:"अब अपना वर्ष चुनें", emptyBody:"आपकी समय-सारणी, परीक्षा तिथियाँ और सूचनाएँ यहीं दिखेंगी।",
+    todayClasses:"आज की कक्षाएँ", nextClassIn:"अगली कक्षा {0} में", classNow:"कक्षा चल रही है", noMore:"आज और कक्षाएँ नहीं हैं", noToday:"आज कोई कक्षा नहीं", nextOn:"अगली: {0}, {1} · {2}",
+    stDone:"समाप्त", stNow:"अभी", stNext:"अगली", stLater:"बाद में", min:"{0} मिनट", hr:"{0} घंटा {1} मिनट",
+    nextExam:"आपकी अगली परीक्षा", noExams:"कोई आने वाली परीक्षा नहीं", noExamsSub:"{0} सेम {1} की नई तिथियाँ यहाँ दिखेंगी।",
+    timetable:"कक्षा समय-सारणी", examDates:"परीक्षा तिथियाँ", noticesForYou:"आपके लिए सूचनाएँ", seeAll:"सब देखें", noClasses:"इस सेमेस्टर के लिए अभी कक्षाएँ नहीं जोड़ी गई हैं।", noExamsYet:"इस सेमेस्टर के लिए अभी परीक्षाएँ नहीं जोड़ी गई हैं।", noNotices:"अभी कोई सूचना नहीं।",
+    relDone:"हो चुकी", relToday:"आज", relTomorrow:"कल", relIn:"{0} दिन में", about:"हमारे कॉलेज के बारे में",
+    noticesTitle:"सूचनाएँ", latestFirst:"नवीनतम पहले", all:"सभी", noNoticesFound:"कोई सूचना नहीं मिली।",
+    examSchedule:"परीक्षा कार्यक्रम", pickCS:"अपना कोर्स और सेमेस्टर चुनें", allCourses:"सभी कोर्स", allSems:"सभी सेमेस्टर", noExamsFound:"कोई परीक्षा नहीं मिली।",
+    findRoom:"मेरी कक्षा खोजें", pickClassDay:"अपनी कक्षा और दिन चुनें", allClasses:"सभी कक्षाएँ", allDays:"सभी दिन", noClassesFound:"कोई कक्षा नहीं मिली।",
+    officesTitle:"कार्यालय और विभाग", officesSub:"कहाँ जाना है और कब", call:"कॉल", email:"ईमेल", quick:"त्वरित उत्तर", tapQ:"प्रश्न पर टैप करें",
+    share:"शेयर", addCal:"कैलेंडर में जोड़ें", openPdf:"PDF खोलें", newTag:"नया", askAI:"AI से पूछें", loadErr:"डेटा लोड नहीं हो सका", checkNet:"इंटरनेट जाँचें और फिर कोशिश करें।",
+    coursesTitle:"हमारे पाठ्यक्रम", coursesSub:"स्नातक कार्यक्रम और कैम्पस", nCourses:"{0} पाठ्यक्रम", eligibility:"पात्रता", askAdmission:"प्रवेश प्रकोष्ठ से संपर्क करें", noPrograms:"कोई कार्यक्रम नहीं मिला।", contactAdm:"प्रवेश प्रकोष्ठ से संपर्क करें", coursesPromo:"पाठ्यक्रम और कैम्पस", coursesPromoSub:"हर कार्यक्रम की पात्रता देखें", coursesErr:"पाठ्यक्रम अभी जोड़े नहीं गए हैं।",
+    offlineNote:"सहेजा हुआ डेटा दिख रहा है (ऑफ़लाइन)", install:"इंस्टॉल", iosTip:"इंस्टॉल करने के लिए: शेयर दबाएँ, फिर “Add to Home Screen”।" }
+};
+const HI_DAYS = { Monday:"सोमवार", Tuesday:"मंगलवार", Wednesday:"बुधवार", Thursday:"गुरुवार", Friday:"शुक्रवार", Saturday:"शनिवार", Sunday:"रविवार" };
+let LANG = "en"; try { LANG = localStorage.getItem("ca_lang") === "hi" ? "hi" : "en"; } catch (e) {}
+const t = (k, ...a) => { let s = I18N[LANG][k] ?? I18N.en[k] ?? k; a.forEach((v, i) => { s = s.replace("{" + i + "}", v); }); return s; };
+const L = o => (o && (o[LANG] || o.en)) || "";
+const dayName = d => { const k = String(d).trim(); const c = k.charAt(0).toUpperCase() + k.slice(1).toLowerCase(); return LANG === "hi" ? (HI_DAYS[c] || k) : k; };
 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const app = document.getElementById("app"), cache = {};
-    let offline = false;
-    const $ = id => document.getElementById(id);
-    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-    const uniq = (rows, k) => [...new Set(rows.map(r => r[k]))].filter(v => v !== null && v !== "");
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const D = s => new Date(s + "T00:00:00");
-    const diff = s => Math.round((D(s) - today) / 864e5);
-    const loc = () => LANG === "hi" ? "hi-IN" : "en-IN";
-    const dmon = s => D(s).toLocaleDateString(loc(), {month: "short"});
-    const dnum = s => D(s).getDate();
-    const rel = n => n < 0 ? t("relDone") : n === 0 ? t("relToday") : n === 1 ? t("relTomorrow") : t("relIn", n);
-    const hue = s => [...String(s)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
-    const tagCss = s => `background:hsl(${hue(s)} 80% 50% / .16);color:hsl(${hue(s)} 70% 38%)`;
-    const empty = m => `<div class="empty-msg">${m}</div>`;
-    const mins = tx => {const o = []; for (const m of String(tx).matchAll(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/gi)) {let h = Number(m[1]) % 12; if (/pm/i.test(m[3])) h += 12; o.push(h * 60 + Number(m[2] || 0));} return o;};
-    const span = tx => {const a = mins(tx); return a.length ? [a[0], a[1] ?? a[0] + 60] : [0, 60];};
-    const fmtDur = m => m < 60 ? t("min", m) : t("hr", Math.floor(m / 60), m % 60);
-    const wa = txt => `https://wa.me/?text=${encodeURIComponent(txt + "\n\n" + location.origin)}`;
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const app = document.getElementById("app"), cache = {};
+let offline = false;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uniq = (rows, k) => [...new Set(rows.map(r => r[k]))].filter(v => v !== null && v !== "");
+const today = new Date(); today.setHours(0,0,0,0);
+const D = s => new Date(s + "T00:00:00");
+const diff = s => Math.round((D(s) - today) / 864e5);
+const loc = () => LANG === "hi" ? "hi-IN" : "en-IN";
+const dmon = s => D(s).toLocaleDateString(loc(), { month: "short" });
+const dnum = s => D(s).getDate();
+const rel = n => n < 0 ? t("relDone") : n === 0 ? t("relToday") : n === 1 ? t("relTomorrow") : t("relIn", n);
+const hue = s => [...String(s)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
+const tagCss = s => `background:hsl(${hue(s)} 80% 50% / .16);color:hsl(${hue(s)} 70% 38%)`;
+const empty = m => `<div class="empty-msg">${m}</div>`;
+const mins = tx => { const o = []; for (const m of String(tx).matchAll(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/gi)) { let h = Number(m[1]) % 12; if (/pm/i.test(m[3])) h += 12; o.push(h * 60 + Number(m[2] || 0)); } return o; };
+const span = tx => { const a = mins(tx); return a.length ? [a[0], a[1] ?? a[0] + 60] : [0, 60]; };
+const fmtDur = m => m < 60 ? t("min", m) : t("hr", Math.floor(m / 60), m % 60);
+const wa = txt => `https://wa.me/?text=${encodeURIComponent(txt + "\n\n" + location.origin)}`;
 
-    async function getData(tb) {
-      if (cache[tb]) return cache[tb];
-      try {
-        const {data, error} = await db.from(tb).select("*");
-        if (error) throw new Error(tb + ": " + error.message);
-        try {localStorage.setItem("ca_c_" + tb, JSON.stringify(data));} catch (e) { }
-        return (cache[tb] = data);
-      } catch (e) {
-        let raw = null; try {raw = localStorage.getItem("ca_c_" + tb);} catch (x) { }
-        if (raw) {offline = true; return (cache[tb] = JSON.parse(raw));}
-        throw e;
-      }
-    }
-    const pills = (id, label, vals, fmt) => `<div class="pills" id="${id}">` + ["", ...vals].map(v =>
-      `<button class="pill${v === "" ? " on" : ""}" data-v="${esc(v)}">${v === "" ? label : esc(fmt ? fmt(v) : v)}</button>`).join("") + `</div>`;
-    function bind(id, cb) {
-      const c = $(id);
-      c.addEventListener("click", e => {
-        const b = e.target.closest(".pill"); if (!b) return;
-        c.querySelectorAll(".pill").forEach(x => x.classList.remove("on")); b.classList.add("on"); cb(b.dataset.v);
-      });
-    }
+async function getData(tb) {
+  if (cache[tb]) return cache[tb];
+  try {
+    const { data, error } = await db.from(tb).select("*");
+    if (error) throw new Error(tb + ": " + error.message);
+    try { localStorage.setItem("ca_c_" + tb, JSON.stringify(data)); } catch (e) {}
+    return (cache[tb] = data);
+  } catch (e) {
+    let raw = null; try { raw = localStorage.getItem("ca_c_" + tb); } catch (x) {}
+    if (raw) { offline = true; return (cache[tb] = JSON.parse(raw)); }
+    throw e;
+  }
+}
+const pills = (id, label, vals, fmt) => `<div class="pills" id="${id}">` + ["", ...vals].map(v =>
+  `<button class="pill${v === "" ? " on" : ""}" data-v="${esc(v)}">${v === "" ? label : esc(fmt ? fmt(v) : v)}</button>`).join("") + `</div>`;
+function bind(id, cb) {
+  const c = $(id);
+  c.addEventListener("click", e => {
+    const b = e.target.closest(".pill"); if (!b) return;
+    c.querySelectorAll(".pill").forEach(x => x.classList.remove("on")); b.classList.add("on"); cb(b.dataset.v);
+  });
+}
 
-    /* ---- bottom sheet ---- */
-    const sheet = $("sheet");
-    function closeSheet() {sheet.classList.remove("open");}
-    function openSheet(title, items, selected, onPick) {
-      $("shTitle").textContent = title;
-      $("shList").innerHTML = items.map((it, i) => `<button class="opt${String(it.value) === String(selected) ? " sel" : ""}" data-i="${i}">
+/* ---- bottom sheet ---- */
+const sheet = $("sheet");
+function closeSheet() { sheet.classList.remove("open"); }
+function openSheet(title, items, selected, onPick) {
+  $("shTitle").textContent = title;
+  $("shList").innerHTML = items.map((it, i) => `<button class="opt${String(it.value) === String(selected) ? " sel" : ""}" data-i="${i}">
     <span class="bd" style="background:hsl(${hue(it.badge)} 65% 40%)">${esc(it.badge)}</span><span class="ol">${esc(it.label)}</span><span class="ck">✓</span></button>`).join("")
-        || `<p class="empty-msg">${t("nothing")}</p>`;
-      $("shList").onclick = e => {const b = e.target.closest(".opt"); if (!b) return; closeSheet(); onPick(items[b.dataset.i].value);};
-      sheet.querySelector(".sh-panel").scrollTop = 0; sheet.classList.add("open");
-    }
-    sheet.querySelector(".sh-bg").onclick = closeSheet;
-    document.addEventListener("keydown", e => {if (e.key === "Escape") closeSheet();});
+    || `<p class="empty-msg">${t("nothing")}</p>`;
+  $("shList").onclick = e => { const b = e.target.closest(".opt"); if (!b) return; closeSheet(); onPick(items[b.dataset.i].value); };
+  sheet.querySelector(".sh-panel").scrollTop = 0; sheet.classList.add("open");
+}
+sheet.querySelector(".sh-bg").onclick = closeSheet;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
 
-    /* ---- calendar (.ics) ---- */
-    function downloadIcs(ex) {
-      const [a, b] = span(ex.time), d = String(ex.date).replaceAll("-", "");
-      const f = m => String(Math.floor(m / 60)).padStart(2, "0") + String(m % 60).padStart(2, "0") + "00";
-      const x = s => String(s ?? "").replace(/([,;\\])/g, "\\$1").replace(/\n/g, " ");
-      const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//College Assistant//EN", "BEGIN:VEVENT",
-        "UID:" + d + "-" + Math.random().toString(36).slice(2) + "@collegeassistant", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z",
-        "DTSTART:" + d + "T" + f(a), "DTEND:" + d + "T" + f(b), "SUMMARY:" + x(ex.subject + " exam"), "LOCATION:" + x(ex.room), "DESCRIPTION:" + x(ex.course + " Sem " + ex.semester),
-        "BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:Exam tomorrow", "END:VALARM",
-        "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:Exam in 1 hour", "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
-      const url = URL.createObjectURL(new Blob([lines.join("\r\n")], {type: "text/calendar"}));
-      const a2 = document.createElement("a"); a2.href = url; a2.download = "exam.ics"; document.body.appendChild(a2); a2.click(); a2.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-    }
-    document.addEventListener("click", e => {const b = e.target.closest("[data-cal]"); if (b) downloadIcs(JSON.parse(b.dataset.cal));});
+/* ---- calendar (.ics) ---- */
+function downloadIcs(ex) {
+  const [a, b] = span(ex.time), d = String(ex.date).replaceAll("-", "");
+  const f = m => String(Math.floor(m / 60)).padStart(2, "0") + String(m % 60).padStart(2, "0") + "00";
+  const x = s => String(s ?? "").replace(/([,;\\])/g, "\\$1").replace(/\n/g, " ");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//College Assistant//EN", "BEGIN:VEVENT",
+    "UID:" + d + "-" + Math.random().toString(36).slice(2) + "@collegeassistant", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z",
+    "DTSTART:" + d + "T" + f(a), "DTEND:" + d + "T" + f(b), "SUMMARY:" + x(ex.subject + " exam"), "LOCATION:" + x(ex.room), "DESCRIPTION:" + x(ex.course + " Sem " + ex.semester),
+    "BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:Exam tomorrow", "END:VALARM",
+    "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:Exam in 1 hour", "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
+  const url = URL.createObjectURL(new Blob([lines.join("\r\n")], { type: "text/calendar" }));
+  const a2 = document.createElement("a"); a2.href = url; a2.download = "exam.ics"; document.body.appendChild(a2); a2.click(); a2.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-cal]"); if (b) downloadIcs(JSON.parse(b.dataset.cal)); });
 
-    /* ---- list rows ---- */
-    const noticeRow = r => {
-      const n = diff(r.date);
-      const txt = `📢 ${r.title}\n${r.description}\n${r.date} · ${r.department}`;
-      return `<div class="item"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
+/* ---- list rows ---- */
+const noticeRow = r => { const n = diff(r.date);
+  const txt = `📢 ${r.title}\n${r.description}\n${r.date} · ${r.department}`;
+  return `<div class="item"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
   <h3>${esc(r.title)}${n <= 0 && n > -8 ? `<span class="new">${t("newTag")}</span>` : ""}</h3><p>${esc(r.description)}</p>
   <span class="tag" style="${tagCss(r.department)}">${esc(r.department)}</span>
   ${r.pdf_link ? `<br><a class="link" href="${esc(r.pdf_link)}" target="_blank" rel="noopener">${t("openPdf")}</a>` : ""}
-  <div class="acts2"><a class="mini wa" href="${esc(wa(txt))}" target="_blank" rel="noopener">${t("share")}</a></div></div></div>`;
-    };
-    const examRow = r => {
-      const n = diff(r.date);
-      const txt = `📝 ${r.subject} (${r.course} Sem ${r.semester})\n📅 ${r.date}\n🕒 ${r.time}\n📍 ${r.room}`;
-      const cal = esc(JSON.stringify({subject: r.subject, date: r.date, time: r.time, room: r.room, course: r.course, semester: r.semester}));
-      return `<div class="item" style="${n < 0 ? "opacity:.55" : ""}"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
+  <div class="acts2"><a class="mini wa" href="${esc(wa(txt))}" target="_blank" rel="noopener">${t("share")}</a></div></div></div>`; };
+const examRow = r => { const n = diff(r.date);
+  const txt = `📝 ${r.subject} (${r.course} Sem ${r.semester})\n📅 ${r.date}\n🕒 ${r.time}\n📍 ${r.room}`;
+  const cal = esc(JSON.stringify({ subject: r.subject, date: r.date, time: r.time, room: r.room, course: r.course, semester: r.semester }));
+  return `<div class="item" style="${n < 0 ? "opacity:.55" : ""}"><div class="date"><b>${dnum(r.date)}</b><span>${dmon(r.date)}</span></div><div class="body">
   <h3>${esc(r.subject)}</h3><p>${esc(r.course)} · ${t("semN", esc(r.semester))}</p><p>${esc(r.time)}</p>
   <span class="tag" style="background:var(--soft);color:var(--ink)">${rel(n)}</span>
   <div class="acts2"><a class="mini wa" href="${esc(wa(txt))}" target="_blank" rel="noopener">${t("share")}</a>${n >= 0 ? `<button class="mini" data-cal="${cal}">📅 ${t("addCal")}</button>` : ""}</div></div>
-  <div class="room">${esc(r.room)}</div></div>`;
-    };
+  <div class="room">${esc(r.room)}</div></div>`; };
 
-    /* ---- today's classes + next class ---- */
-    function todayBlock(tt) {
-      const now = new Date(), nowM = now.getHours() * 60 + now.getMinutes();
-      const dayOf = off => new Date(now.getTime() + off * 864e5).toLocaleDateString("en-US", {weekday: "long"});
-      const byDay = d => tt.filter(r => String(r.day).trim().toLowerCase() === d.toLowerCase()).sort((a, b) => span(a.time)[0] - span(b.time)[0]);
-      const list = byDay(dayOf(0));
-      const st = r => {const [a, b] = span(r.time); return nowM >= b ? "done" : nowM >= a ? "now" : "later";};
-      const sts = list.map(st), nextI = sts.indexOf("later"), curI = sts.indexOf("now");
-      let msg;
-      if (curI >= 0) msg = `🟢 ${t("classNow")} · ${esc(list[curI].room_number)}`;
-      else if (nextI >= 0) msg = `⏰ ${t("nextClassIn", fmtDur(span(list[nextI].time)[0] - nowM))} · ${esc(list[nextI].room_number)}`;
-      else msg = list.length ? `✅ ${t("noMore")}` : `🎉 ${t("noToday")}`;
-      if (curI < 0 && nextI < 0) for (let k = 1; k <= 7; k++) {const d = byDay(dayOf(k)); if (d.length) {msg += " · " + t("nextOn", esc(dayName(d[0].day)), esc(d[0].time), esc(d[0].room_number)); break;} }
-      const key = {done: "stDone", now: "stNow", next: "stNext", later: "stLater"};
-      const rows = list.map((r, i) => {
-        const s = i === nextI ? "next" : sts[i];
-        return `<div class="item${s === "done" ? " dim" : ""}"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p><span class="tag st-${s}">${t(key[s])}</span></div><div class="room">${esc(r.room_number)}</div></div>`;
-      }).join("");
-      return `<div class="sec" style="margin-top:20px"><h2>${t("todayClasses")} · ${esc(dayName(dayOf(0)))}</h2></div><div class="nextbar">${msg}</div>${rows ? `<div class="list">${rows}</div>` : ""}`;
-    }
+/* ---- today's classes + next class ---- */
+function todayBlock(tt) {
+  const now = new Date(), nowM = now.getHours() * 60 + now.getMinutes();
+  const dayOf = off => new Date(now.getTime() + off * 864e5).toLocaleDateString("en-US", { weekday: "long" });
+  const byDay = d => tt.filter(r => String(r.day).trim().toLowerCase() === d.toLowerCase()).sort((a, b) => span(a.time)[0] - span(b.time)[0]);
+  const list = byDay(dayOf(0));
+  const st = r => { const [a, b] = span(r.time); return nowM >= b ? "done" : nowM >= a ? "now" : "later"; };
+  const sts = list.map(st), nextI = sts.indexOf("later"), curI = sts.indexOf("now");
+  let msg;
+  if (curI >= 0) msg = `🟢 ${t("classNow")} · ${esc(list[curI].room_number)}`;
+  else if (nextI >= 0) msg = `⏰ ${t("nextClassIn", fmtDur(span(list[nextI].time)[0] - nowM))} · ${esc(list[nextI].room_number)}`;
+  else msg = list.length ? `✅ ${t("noMore")}` : `🎉 ${t("noToday")}`;
+  if (curI < 0 && nextI < 0) for (let k = 1; k <= 7; k++) { const d = byDay(dayOf(k)); if (d.length) { msg += " · " + t("nextOn", esc(dayName(d[0].day)), esc(d[0].time), esc(d[0].room_number)); break; } }
+  const key = { done: "stDone", now: "stNow", next: "stNext", later: "stLater" };
+  const rows = list.map((r, i) => { const s = i === nextI ? "next" : sts[i];
+    return `<div class="item${s === "done" ? " dim" : ""}"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p><span class="tag st-${s}">${t(key[s])}</span></div><div class="room">${esc(r.room_number)}</div></div>`; }).join("");
+  return `<div class="sec" style="margin-top:20px"><h2>${t("todayClasses")} · ${esc(dayName(dayOf(0)))}</h2></div><div class="nextbar">${msg}</div>${rows ? `<div class="list">${rows}</div>` : ""}`;
+}
 
-    let PICK = {course: "", sem: ""};   // kept while the app is open (language switch, other pages)
-    const SKY = `<svg class="sky" viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#fff" fill-opacity=".13"><rect x="0" y="90" width="400" height="6"/><rect x="150" y="44" width="100" height="48"/><polygon points="140,44 200,22 260,44"/><path d="M186,26 Q200,-2 214,26Z"/><rect x="60" y="58" width="86" height="34"/><rect x="254" y="58" width="86" height="34"/><rect x="26" y="48" width="32" height="44"/><polygon points="22,48 42,30 62,48"/><rect x="342" y="48" width="32" height="44"/><polygon points="338,48 358,30 378,48"/><circle cx="12" cy="80" r="14"/><circle cx="388" cy="80" r="14"/><circle cx="102" cy="84" r="9"/><circle cx="298" cy="84" r="9"/></g><g fill="#fff" fill-opacity=".09"><rect x="160" y="50" width="6" height="42"/><rect x="176" y="50" width="6" height="42"/><rect x="192" y="50" width="6" height="42"/><rect x="208" y="50" width="6" height="42"/><rect x="224" y="50" width="6" height="42"/><rect x="238" y="50" width="6" height="42"/></g></svg>`;
-    const heroHTML = () => {
-      const h = new Date().getHours(), g = h < 12 ? t("gm") : h < 17 ? t("ga") : t("ge");
-      return `<div class="banner"><div class="b3d"><div class="bphoto" style="background-image:url(campus.jpg)"></div><div class="bfade"></div>
+let PICK = { course: "", sem: "" };   // kept while the app is open (language switch, other pages)
+const SKY = `<svg class="sky" viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#fff" fill-opacity=".13"><rect x="0" y="90" width="400" height="6"/><rect x="150" y="44" width="100" height="48"/><polygon points="140,44 200,22 260,44"/><path d="M186,26 Q200,-2 214,26Z"/><rect x="60" y="58" width="86" height="34"/><rect x="254" y="58" width="86" height="34"/><rect x="26" y="48" width="32" height="44"/><polygon points="22,48 42,30 62,48"/><rect x="342" y="48" width="32" height="44"/><polygon points="338,48 358,30 378,48"/><circle cx="12" cy="80" r="14"/><circle cx="388" cy="80" r="14"/><circle cx="102" cy="84" r="9"/><circle cx="298" cy="84" r="9"/></g><g fill="#fff" fill-opacity=".09"><rect x="160" y="50" width="6" height="42"/><rect x="176" y="50" width="6" height="42"/><rect x="192" y="50" width="6" height="42"/><rect x="208" y="50" width="6" height="42"/><rect x="224" y="50" width="6" height="42"/><rect x="238" y="50" width="6" height="42"/></g></svg>`;
+const heroHTML = () => { const h = new Date().getHours(), g = h < 12 ? t("gm") : h < 17 ? t("ga") : t("ge");
+  return `<div class="banner"><div class="b3d"><div class="bphoto" style="background-image:url(campus.jpg)"></div><div class="bfade"></div>
     <div class="banner-in"><small>${g} 👋 · ${t("welcome")}</small><h1>${esc(L(COLLEGE.name))}</h1>
-    <p>${esc(L(COLLEGE.place))}</p><p class="mot">“${esc(COLLEGE.motto)}”</p></div></div></div>`;
+    <p>${esc(L(COLLEGE.place))}</p><p class="mot">“${esc(COLLEGE.motto)}”</p></div></div></div>`; };
+
+/* 3D depth: the photo and the text move at different speeds with pointer, phone tilt and scroll */
+let d3Ready = false;
+function init3D() {
+  const b = document.querySelector(".banner"), el = document.querySelector(".b3d");
+  if (!b || !el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let raf = 0;
+  const set = (nx, ny) => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const e2 = document.querySelector(".b3d"); if (!e2) return;
+    e2.style.setProperty("--ry", (nx * 3).toFixed(2) + "deg"); e2.style.setProperty("--rx", (-ny * 2.5).toFixed(2) + "deg");
+    e2.style.setProperty("--px", (nx * -14).toFixed(1) + "px"); e2.style.setProperty("--py", (ny * -8).toFixed(1) + "px"); }); };
+  b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); set(((e.clientX - r.left) / r.width - .5) * 2, ((e.clientY - r.top) / r.height - .5) * 2); });
+  b.addEventListener("pointerleave", () => set(0, 0));
+  if (d3Ready) return; d3Ready = true;
+  addEventListener("deviceorientation", e => { if (e.gamma == null) return; set(Math.max(-1, Math.min(1, e.gamma / 25)), Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 25))); }, { passive: true });
+  addEventListener("scroll", () => { const e2 = document.querySelector(".b3d"); if (e2) e2.style.setProperty("--sy", Math.min(scrollY * .25, 70) + "px"); }, { passive: true });
+}
+
+const pages = {
+  async home() {
+    const [n, e, rm] = await Promise.all([getData("notices"), getData("exams"), getData("rooms")]);
+    const roomCourse = c => String(c).replace(/\s*\d+(st|nd|rd|th)\s*sem.*$/i, "").trim();
+    const courses = [...new Set([...uniq(e, "course"), ...rm.map(r => roomCourse(r.class))])].filter(Boolean).sort();
+    const semsFor = c => {
+      const set = new Set(e.filter(x => x.course === c).map(x => Number(x.semester)));
+      rm.filter(r => roomCourse(r.class) === c).forEach(r => { const m = String(r.class).match(/(\d+)(?:st|nd|rd|th)/i); if (m) set.add(Number(m[1])); });
+      return [...set].filter(Boolean).sort((a, b) => a - b);
     };
+    const inClass = (r, c, sm) => roomCourse(r.class) === c && new RegExp(`\\b${sm}(st|nd|rd|th)\\b`, "i").test(r.class);
+    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const dayIdx = d => { const i = DAYS.findIndex(x => x.toLowerCase() === String(d).trim().toLowerCase()); return i < 0 ? 9 : i; };
+    const todayName = new Date().toLocaleDateString("en-US", { weekday: "long" });
+    const noticesFor = c => n.filter(r => {
+      const txt = (r.title + " " + r.description).toLowerCase(), named = courses.filter(k => txt.includes(k.toLowerCase()));
+      return !named.length || named.includes(c);
+    }).sort((a, b) => b.date.localeCompare(a.date));
 
-    /* 3D depth: the photo and the text move at different speeds with pointer, phone tilt and scroll */
-    let d3Ready = false;
-    function init3D() {
-      const b = document.querySelector(".banner"), el = document.querySelector(".b3d");
-      if (!b || !el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      let raf = 0;
-      const set = (nx, ny) => {
-        cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
-          const e2 = document.querySelector(".b3d"); if (!e2) return;
-          e2.style.setProperty("--ry", (nx * 3).toFixed(2) + "deg"); e2.style.setProperty("--rx", (-ny * 2.5).toFixed(2) + "deg");
-          e2.style.setProperty("--px", (nx * -14).toFixed(1) + "px"); e2.style.setProperty("--py", (ny * -8).toFixed(1) + "px");
-        });
-      };
-      b.addEventListener("pointermove", e => {const r = b.getBoundingClientRect(); set(((e.clientX - r.left) / r.width - .5) * 2, ((e.clientY - r.top) / r.height - .5) * 2);});
-      b.addEventListener("pointerleave", () => set(0, 0));
-      if (d3Ready) return; d3Ready = true;
-      addEventListener("deviceorientation", e => {if (e.gamma == null) return; set(Math.max(-1, Math.min(1, e.gamma / 25)), Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 25)));}, {passive: true});
-      addEventListener("scroll", () => {const e2 = document.querySelector(".b3d"); if (e2) e2.style.setProperty("--sy", Math.min(scrollY * .25, 70) + "px");}, {passive: true});
-    }
-
-    const pages = {
-      async home() {
-        const [n, e, rm] = await Promise.all([getData("notices"), getData("exams"), getData("rooms")]);
-        const roomCourse = c => String(c).replace(/\s*\d+(st|nd|rd|th)\s*sem.*$/i, "").trim();
-        const courses = [...new Set([...uniq(e, "course"), ...rm.map(r => roomCourse(r.class))])].filter(Boolean).sort();
-        const semsFor = c => {
-          const set = new Set(e.filter(x => x.course === c).map(x => Number(x.semester)));
-          rm.filter(r => roomCourse(r.class) === c).forEach(r => {const m = String(r.class).match(/(\d+)(?:st|nd|rd|th)/i); if (m) set.add(Number(m[1]));});
-          return [...set].filter(Boolean).sort((a, b) => a - b);
-        };
-        const inClass = (r, c, sm) => roomCourse(r.class) === c && new RegExp(`\\b${sm}(st|nd|rd|th)\\b`, "i").test(r.class);
-        const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        const dayIdx = d => {const i = DAYS.findIndex(x => x.toLowerCase() === String(d).trim().toLowerCase()); return i < 0 ? 9 : i;};
-        const todayName = new Date().toLocaleDateString("en-US", {weekday: "long"});
-        const noticesFor = c => n.filter(r => {
-          const txt = (r.title + " " + r.description).toLowerCase(), named = courses.filter(k => txt.includes(k.toLowerCase()));
-          return !named.length || named.includes(c);
-        }).sort((a, b) => b.date.localeCompare(a.date));
-
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="pickhero">
         <div class="pk-title">${t("pickClass")}</div><p class="pk-sub">${t("subPick")}</p>
         <div class="pk-grid">
@@ -1525,6 +439,7 @@
         </div>
       </div>
       <div id="mine"></div>
+      <a class="promo" href="#courses"><span class="pi">🎓</span><div><b>${t("coursesPromo")}</b><small>${t("coursesPromoSub")}</small></div><i>›</i></a>
       <section class="about" aria-labelledby="abTitle">
         <h2 id="abTitle">${t("about")}</h2>
         <div class="abox">
@@ -1533,147 +448,154 @@
         </div>
       </section>`;
 
-        let course = courses.includes(PICK.course) ? PICK.course : "", sem = course && semsFor(course).map(String).includes(String(PICK.sem)) ? String(PICK.sem) : "";
-        const paint = () => {
-          $("vCourse").textContent = course || t("selectCourse"); $("fCourse").classList.toggle("has", !!course);
-          $("vSem").textContent = sem ? t("yearSem", Math.ceil(sem / 2), sem) : t("selectYear"); $("fSem").classList.toggle("has", !!sem);
-          $("fSem").disabled = !course;
-        };
-        const mineEl = $("mine");
-        const render = () => {
-          const c = course, sm = sem; PICK = {course: c, sem: sm};
-          try {localStorage.setItem("ca_pick", JSON.stringify({course: c, sem: sm}));} catch (err) { }
-          if (!c || !sm) {
-            mineEl.innerHTML = `<div class="ticket empty" style="margin-top:18px"><b>${c ? t("emptyTitle2") : t("emptyTitle1")}</b><p class="sub" style="margin:4px 0 0">${t("emptyBody")}</p>
+    let course = courses.includes(PICK.course) ? PICK.course : "", sem = course && semsFor(course).map(String).includes(String(PICK.sem)) ? String(PICK.sem) : "";
+    const paint = () => {
+      $("vCourse").textContent = course || t("selectCourse"); $("fCourse").classList.toggle("has", !!course);
+      $("vSem").textContent = sem ? t("yearSem", Math.ceil(sem / 2), sem) : t("selectYear"); $("fSem").classList.toggle("has", !!sem);
+      $("fSem").disabled = !course;
+    };
+    const mineEl = $("mine");
+    const render = () => {
+      const c = course, sm = sem; PICK = { course: c, sem: sm };
+      try { localStorage.setItem("ca_pick", JSON.stringify({ course: c, sem: sm })); } catch (err) {}
+      if (!c || !sm) {
+        mineEl.innerHTML = `<div class="ticket empty" style="margin-top:18px"><b>${c ? t("emptyTitle2") : t("emptyTitle1")}</b><p class="sub" style="margin:4px 0 0">${t("emptyBody")}</p>
           ${resume && !c ? `<button class="mini" id="resume" style="margin-top:12px">↩ ${t("resume", esc(resume.course), esc(t("yearSem", Math.ceil(resume.sem / 2), resume.sem)))}</button>` : ""}</div>`;
-            const rb = $("resume"); if (rb) rb.onclick = () => {course = resume.course; sem = String(resume.sem); paint(); render();};
-            return;
-          }
-          const myExams = e.filter(x => x.course === c && String(x.semester) === sm).sort((a, b) => a.date.localeCompare(b.date));
-          const next = myExams.filter(x => diff(x.date) >= 0)[0];
-          const tt = rm.filter(r => inClass(r, c, sm));
-          const days = uniq(tt, "day").sort((a, b) => dayIdx(a) - dayIdx(b));
-          const my = noticesFor(c).slice(0, 6);
-          mineEl.innerHTML = todayBlock(tt) + `
+        const rb = $("resume"); if (rb) rb.onclick = () => { course = resume.course; sem = String(resume.sem); paint(); render(); };
+        return;
+      }
+      const myExams = e.filter(x => x.course === c && String(x.semester) === sm).sort((a, b) => a.date.localeCompare(b.date));
+      const next = myExams.filter(x => diff(x.date) >= 0)[0];
+      const tt = rm.filter(r => inClass(r, c, sm));
+      const days = uniq(tt, "day").sort((a, b) => dayIdx(a) - dayIdx(b));
+      const my = noticesFor(c).slice(0, 6);
+      mineEl.innerHTML = todayBlock(tt) + `
         ${next ? `<div class="ticket" style="margin-top:20px"><div class="stub"><div class="n">${dnum(next.date)}</div><div class="m">${dmon(next.date)}</div></div><div class="perf"></div>
           <div class="tbody"><small>${t("nextExam")}</small><h3>${esc(next.subject)}</h3>
           <div class="tmeta"><span>${esc(next.course)} · ${t("semShort", esc(next.semester))}</span><span>🕒 ${esc(next.time)}</span><span>📍 ${esc(next.room)}</span></div>
           <span class="when">${rel(diff(next.date))}</span></div></div>`
-              : `<div class="ticket empty" style="margin-top:20px"><b>${t("noExams")}</b><p class="sub" style="margin:4px 0 0">${t("noExamsSub", esc(c), esc(sm))}</p></div>`}
+        : `<div class="ticket empty" style="margin-top:20px"><b>${t("noExams")}</b><p class="sub" style="margin:4px 0 0">${t("noExamsSub", esc(c), esc(sm))}</p></div>`}
         <div class="sec"><h2>${t("timetable")}</h2></div>
         <div class="list">${days.map(d => `<div class="day"><b>${esc(dayName(d))}</b>${String(d).trim().toLowerCase() === todayName.toLowerCase() ? `<span class="new" style="background:var(--sun);color:#0F1B3D">${t("relToday")}</span>` : ""}</div>` +
-                tt.filter(r => r.day === d).sort((a, b) => span(a.time)[0] - span(b.time)[0]).map(r =>
-                  `<div class="item"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p></div><div class="room">${esc(r.room_number)}</div></div>`).join("")).join("") || empty(t("noClasses"))}</div>
+          tt.filter(r => r.day === d).sort((a, b) => span(a.time)[0] - span(b.time)[0]).map(r =>
+            `<div class="item"><div class="body"><h3>${esc(r.time)}</h3><p>${esc(r.class)}</p></div><div class="room">${esc(r.room_number)}</div></div>`).join("")).join("") || empty(t("noClasses"))}</div>
         <div class="sec" style="margin-top:22px"><h2>${t("examDates")}</h2></div>
         <div class="list">${myExams.map(examRow).join("") || empty(t("noExamsYet"))}</div>
         <div class="sec" style="margin-top:22px"><h2>${t("noticesForYou")}</h2><a href="#notices">${t("seeAll")}</a></div>
         <div class="list">${my.map(noticeRow).join("") || empty(t("noNotices"))}</div>`;
-        };
-        $("fCourse").onclick = () => openSheet(t("chooseCourse"), courses.map(c => ({value: c, label: c, badge: c})), course, v => {
-          if (v !== course) sem = "";
-          course = v; paint(); render();
-          if (!sem) setTimeout(() => $("fSem").click(), 280);
-        });
-        $("fSem").onclick = () => openSheet(t("chooseSem"), semsFor(course).map(x => ({value: String(x), label: t("yearSem", Math.ceil(x / 2), x), badge: "Y" + Math.ceil(x / 2)})), sem, v => {sem = v; paint(); render();});
-        let saved = {}; try {saved = JSON.parse(localStorage.getItem("ca_pick") || "{}");} catch (err) { }
-        const resume = saved.course && saved.sem && courses.includes(saved.course) && semsFor(saved.course).map(String).includes(String(saved.sem)) ? saved : null;
-        paint(); render();
-      },
+    };
+    $("fCourse").onclick = () => openSheet(t("chooseCourse"), courses.map(c => ({ value: c, label: c, badge: c })), course, v => {
+      if (v !== course) sem = "";
+      course = v; paint(); render();
+      if (!sem) setTimeout(() => $("fSem").click(), 280);
+    });
+    $("fSem").onclick = () => openSheet(t("chooseSem"), semsFor(course).map(x => ({ value: String(x), label: t("yearSem", Math.ceil(x / 2), x), badge: "Y" + Math.ceil(x / 2) })), sem, v => { sem = v; paint(); render(); });
+    let saved = {}; try { saved = JSON.parse(localStorage.getItem("ca_pick") || "{}"); } catch (err) {}
+    const resume = saved.course && saved.sem && courses.includes(saved.course) && semsFor(saved.course).map(String).includes(String(saved.sem)) ? saved : null;
+    paint(); render();
+  },
 
-      async notices() {
-        const rows = (await getData("notices")).sort((a, b) => b.date.localeCompare(a.date));
-        app.innerHTML = `<h1 class="ptitle">${t("noticesTitle")}</h1><p class="sub">${t("latestFirst")}</p>
+  async courses() {
+    let rows;
+    try { rows = await getData("programs"); } catch (e) { app.innerHTML = `<h1 class="ptitle">${t("coursesTitle")}</h1><div class="err" style="margin-top:12px">${t("coursesErr")}</div>`; return; }
+    rows = [...rows].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || String(a.name).localeCompare(String(b.name)));
+    const camp = COLLEGE.campuses;
+    app.innerHTML = `<h1 class="ptitle">${t("coursesTitle")}</h1><p class="sub">${t("coursesSub")}</p>
+      <div class="campuses">${camp.map((c, i) => `<div class="campus c${i % 2}"><b>${esc(c.key)}</b><span>${esc(L(c))}</span>${c.address ? `<small>📍 ${esc(c.address)}</small>` : ""}</div>`).join("")}</div>
+      ${pills("cm", t("all"), camp.map(c => c.key))}<div class="list" id="list"></div>
+      <p style="margin:16px 0 0"><a class="btn" href="#departments">${t("contactAdm")}</a></p>`;
+    let cm = "";
+    const draw = () => { const f = rows.filter(r => !cm || r.campus === cm);
+      $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.name)}${r.courses_count ? `<span class="new" style="background:var(--blue)">${t("nCourses", esc(r.courses_count))}</span>` : ""}</h3>
+        ${r.description ? `<p>${esc(r.description)}</p>` : ""}
+        <p>🎓 ${t("eligibility")}: <b>${r.eligibility ? esc(r.eligibility) : t("askAdmission")}</b></p>
+        ${r.campus ? `<span class="tag" style="${tagCss(r.campus)}">${esc(r.campus)}</span>` : ""}</div></div>`).join("") || empty(t("noPrograms")); };
+    bind("cm", v => { cm = v; draw(); }); draw();
+  },
+
+  async notices() {
+    const rows = (await getData("notices")).sort((a, b) => b.date.localeCompare(a.date));
+    app.innerHTML = `<h1 class="ptitle">${t("noticesTitle")}</h1><p class="sub">${t("latestFirst")}</p>
       ${pills("deps", t("all"), uniq(rows, "department"))}<div class="list" id="list"></div>`;
-        let dep = "";
-        const draw = () => {
-          const f = rows.filter(r => !dep || r.department === dep);
-          $("list").innerHTML = f.map(noticeRow).join("") || empty(t("noNoticesFound"));
-        };
-        bind("deps", v => {dep = v; draw();}); draw();
-      },
+    let dep = "";
+    const draw = () => { const f = rows.filter(r => !dep || r.department === dep);
+      $("list").innerHTML = f.map(noticeRow).join("") || empty(t("noNoticesFound")); };
+    bind("deps", v => { dep = v; draw(); }); draw();
+  },
 
-      async exams() {
-        const rows = (await getData("exams")).sort((a, b) => a.date.localeCompare(b.date));
-        app.innerHTML = `<h1 class="ptitle">${t("examSchedule")}</h1><p class="sub">${t("pickCS")}</p>
+  async exams() {
+    const rows = (await getData("exams")).sort((a, b) => a.date.localeCompare(b.date));
+    app.innerHTML = `<h1 class="ptitle">${t("examSchedule")}</h1><p class="sub">${t("pickCS")}</p>
       ${pills("cs", t("allCourses"), uniq(rows, "course"))}${pills("sm", t("allSems"), uniq(rows, "semester").sort((a, b) => a - b).map(x => t("semShort", x)))}
       <div class="list" id="list"></div>`;
-        let c = "", s = "";
-        const draw = () => {
-          const f = rows.filter(r => (!c || r.course === c) && (!s || t("semShort", r.semester) === s));
-          $("list").innerHTML = f.map(examRow).join("") || empty(t("noExamsFound"));
-        };
-        bind("cs", v => {c = v; draw();}); bind("sm", v => {s = v; draw();}); draw();
-      },
+    let c = "", s = "";
+    const draw = () => { const f = rows.filter(r => (!c || r.course === c) && (!s || t("semShort", r.semester) === s));
+      $("list").innerHTML = f.map(examRow).join("") || empty(t("noExamsFound")); };
+    bind("cs", v => { c = v; draw(); }); bind("sm", v => { s = v; draw(); }); draw();
+  },
 
-      async rooms() {
-        const rows = await getData("rooms");
-        app.innerHTML = `<h1 class="ptitle">${t("findRoom")}</h1><p class="sub">${t("pickClassDay")}</p>
+  async rooms() {
+    const rows = await getData("rooms");
+    app.innerHTML = `<h1 class="ptitle">${t("findRoom")}</h1><p class="sub">${t("pickClassDay")}</p>
       ${pills("cl", t("allClasses"), uniq(rows, "class"))}${pills("dy", t("allDays"), uniq(rows, "day"), dayName)}<div class="list" id="list"></div>`;
-        let c = "", d = "";
-        const draw = () => {
-          const f = rows.filter(r => (!c || r.class === c) && (!d || r.day === d));
-          $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.class)}</h3><p>${esc(dayName(r.day))} · ${esc(r.time)}</p></div>
-        <div class="room">${esc(r.room_number)}</div></div>`).join("") || empty(t("noClassesFound"));
-        };
-        bind("cl", v => {c = v; draw();}); bind("dy", v => {d = v; draw();}); draw();
-      },
+    let c = "", d = "";
+    const draw = () => { const f = rows.filter(r => (!c || r.class === c) && (!d || r.day === d));
+      $("list").innerHTML = f.map(r => `<div class="item"><div class="body"><h3>${esc(r.class)}</h3><p>${esc(dayName(r.day))} · ${esc(r.time)}</p></div>
+        <div class="room">${esc(r.room_number)}</div></div>`).join("") || empty(t("noClassesFound")); };
+    bind("cl", v => { c = v; draw(); }); bind("dy", v => { d = v; draw(); }); draw();
+  },
 
-      async departments() {
-        const rows = await getData("departments");
-        const ico = nm => /exam/i.test(nm) ? "📝" : /admission/i.test(nm) ? "🎓" : /account|fee/i.test(nm) ? "💰" : /librar/i.test(nm) ? "📚" : /comput|cs/i.test(nm) ? "💻" : /placement/i.test(nm) ? "💼" : "🏛️";
-        app.innerHTML = `<h1 class="ptitle">${t("officesTitle")}</h1><p class="sub">${t("officesSub")}</p><div class="list">` + rows.map(r => {
-          const em = (String(r.contact).match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0], ph = (String(r.contact).match(/\d[\d\s-]{6,}\d/) || [])[0];
-          return `<div class="dept"><h3><span class="em">${ico(r.name)}</span>${esc(r.name)}</h3>
+  async departments() {
+    const rows = await getData("departments");
+    const ico = nm => /exam/i.test(nm) ? "📝" : /admission/i.test(nm) ? "🎓" : /account|fee/i.test(nm) ? "💰" : /librar/i.test(nm) ? "📚" : /comput|cs/i.test(nm) ? "💻" : /placement/i.test(nm) ? "💼" : "🏛️";
+    app.innerHTML = `<h1 class="ptitle">${t("officesTitle")}</h1><p class="sub">${t("officesSub")}</p><div class="list">` + rows.map(r => {
+      const em = (String(r.contact).match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0], ph = (String(r.contact).match(/\d[\d\s-]{6,}\d/) || [])[0];
+      return `<div class="dept"><h3><span class="em">${ico(r.name)}</span>${esc(r.name)}</h3>
         <p>📍 ${esc(r.location)}</p><p>🕒 ${esc(r.timings)}</p><p class="mut">${esc(r.services)}</p>
         <div class="acts">${ph ? `<a class="btn" href="tel:${esc(ph.replace(/[\s-]/g, ""))}">${t("call")}</a>` : ""}${em ? `<a class="btn alt" href="mailto:${esc(em)}">${t("email")}</a>` : ""}</div></div>`;
-        }).join("") + `</div>`;
-      },
+    }).join("") + `</div>`;
+  },
 
-      async faqs() {
-        const rows = await getData("faqs");
-        app.innerHTML = `<h1 class="ptitle">${t("quick")}</h1><p class="sub">${t("tapQ")}</p><div class="list">` + rows.map(r =>
-          `<details><summary>${esc(r.question)}</summary><p>${esc(r.answer)}</p></details>`).join("") + `</div>`;
-      },
-    };
+  async faqs() {
+    const rows = await getData("faqs");
+    app.innerHTML = `<h1 class="ptitle">${t("quick")}</h1><p class="sub">${t("tapQ")}</p><div class="list">` + rows.map(r =>
+      `<details><summary>${esc(r.question)}</summary><p>${esc(r.answer)}</p></details>`).join("") + `</div>`;
+  },
+};
 
-    async function route() {
-      const p = (location.hash || "#home").slice(1), page = pages[p] ? p : "home";
-      document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === page));
-      $("hero").innerHTML = page === "home" ? heroHTML() : ""; if (page === "home") init3D();
-      app.innerHTML = `<div class="sk" style="height:44px;width:60%"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
-      offline = false;
-      try {
-        await pages[page](); window.scrollTo(0, 0);
-        if (offline) app.insertAdjacentHTML("afterbegin", `<div class="err" style="background:var(--soft);color:var(--ink);margin:12px 0">${t("offlineNote")}</div>`);
-      }
-      catch (e) {app.innerHTML = `<div class="err"><b>${t("loadErr")}</b><p>${esc(e.message)}</p><p>${t("checkNet")}</p></div>`;}
-    }
-    window.addEventListener("hashchange", route);
+async function route() {
+  const p = (location.hash || "#home").slice(1), page = pages[p] ? p : "home";
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === page));
+  $("hero").innerHTML = page === "home" ? heroHTML() : ""; if (page === "home") init3D();
+  app.innerHTML = `<div class="sk" style="height:44px;width:60%"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
+  offline = false;
+  try { await pages[page](); window.scrollTo(0, 0);
+    if (offline) app.insertAdjacentHTML("afterbegin", `<div class="err" style="background:var(--soft);color:var(--ink);margin:12px 0">${t("offlineNote")}</div>`); }
+  catch (e) { app.innerHTML = `<div class="err"><b>${t("loadErr")}</b><p>${esc(e.message)}</p><p>${t("checkNet")}</p></div>`; }
+}
+window.addEventListener("hashchange", route);
 
-    /* ---- language, theme, install ---- */
-    function applyStatic() {
-      document.querySelectorAll("[data-k]").forEach(el => {el.textContent = t(el.dataset.k);});
-      $("lang").textContent = LANG === "en" ? "हिं" : "EN"; document.documentElement.lang = LANG;
-    }
-    $("lang").onclick = () => {LANG = LANG === "en" ? "hi" : "en"; try {localStorage.setItem("ca_lang", LANG);} catch (e) { } applyStatic(); route();};
-    function setTheme(tm) {
-      document.documentElement.dataset.theme = tm; $("theme").textContent = tm === "dark" ? "☀️" : "🌙";
-      try {localStorage.setItem("ca_theme", tm);} catch (e) { }
-    }
-    let savedTheme = null; try {savedTheme = localStorage.getItem("ca_theme");} catch (e) { }
-    setTheme(savedTheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-    $("theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+/* ---- language, theme, install ---- */
+function applyStatic() {
+  document.querySelectorAll("[data-k]").forEach(el => { el.textContent = t(el.dataset.k); });
+  $("lang").textContent = LANG === "en" ? "हिं" : "EN"; document.documentElement.lang = LANG;
+}
+$("lang").onclick = () => { LANG = LANG === "en" ? "hi" : "en"; try { localStorage.setItem("ca_lang", LANG); } catch (e) {} applyStatic(); route(); };
+function setTheme(tm) { document.documentElement.dataset.theme = tm; $("theme").textContent = tm === "dark" ? "☀️" : "🌙";
+  try { localStorage.setItem("ca_theme", tm); } catch (e) {} }
+let savedTheme = null; try { savedTheme = localStorage.getItem("ca_theme"); } catch (e) {}
+setTheme(savedTheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+$("theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
 
-    let deferred = null;
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-    addEventListener("beforeinstallprompt", e => {e.preventDefault(); deferred = e; $("install").hidden = false;});
-    addEventListener("appinstalled", () => {$("install").hidden = true;});
-    if (isIOS && !standalone) $("install").hidden = false;
-    $("install").onclick = async () => {if (deferred) {deferred.prompt(); await deferred.userChoice; deferred = null; $("install").hidden = true;} else if (isIOS) alert(t("iosTip"));};
-    if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => { }));
+let deferred = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("install").hidden = false; });
+addEventListener("appinstalled", () => { $("install").hidden = true; });
+if (isIOS && !standalone) $("install").hidden = false;
+$("install").onclick = async () => { if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; $("install").hidden = true; } else if (isIOS) alert(t("iosTip")); };
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
 
-    applyStatic(); route();
-  </script>
+applyStatic(); route();
+</script>
 </body>
-
 </html>
